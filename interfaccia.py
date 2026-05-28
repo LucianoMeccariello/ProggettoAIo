@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-MedExpert AI — Sistema Esperto di Diagnosi Medica
-Premium Tkinter GUI for Prolog-based medical diagnosis.
+Progetto di Intelligenza Artificiale
+Sistema Esperto per la diagnosi medica usando Tkinter e Prolog
+Studente: Luciano Meccariello
 """
 
 import os
@@ -11,9 +12,7 @@ import threading
 import tkinter as tk
 from tkinter import font as tkfont
 
-# ─────────────────────────────────────────────────────────────
-# COLOUR PALETTE — Dark Medical Theme
-# ─────────────────────────────────────────────────────────────
+# Colori del tema scuro
 BG_ROOT  = '#0a1628'
 BG_PANEL = '#0f1f35'
 BG_CARD  = '#152840'
@@ -28,9 +27,7 @@ TEXT     = '#e0e8ff'
 DIM      = '#5a7a9a'
 BORDER   = '#1e3a5a'
 
-# ─────────────────────────────────────────────────────────────
-# SYMPTOM CATEGORIES (Italian labels)
-# ─────────────────────────────────────────────────────────────
+# Liste delle categorie e sintomi associati
 SYMPTOM_CATEGORIES = [
     ('🫁 Respiratori', [
         'febbre_alta', 'febbre_lieve', 'tosse_secca', 'tosse_grassa',
@@ -72,9 +69,7 @@ def pretty_label(symptom: str) -> str:
     return symptom.replace('_', ' ').capitalize()
 
 
-# ─────────────────────────────────────────────────────────────
-# PROLOG ENGINE
-# ─────────────────────────────────────────────────────────────
+# Classe per gestire la comunicazione con Prolog
 class PrologEngine:
     PL_FILE = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), 'diagnosi_medica.pl'
@@ -123,7 +118,7 @@ class PrologEngine:
         return sorted(results, key=lambda x: x[1], reverse=True)
 
     def spiega(self, malattia, sintomi):
-        """Returns explanation dict with trovati, mancanti, descrizione, trattamento."""
+        # Chiede a Prolog i dettagli (sintomi trovati, mancanti, ecc.)
         sintomi_str = ','.join(sintomi)
         goal = f"query_spiega('{malattia}', '{sintomi_str}')"
         raw = self._run(goal)
@@ -131,13 +126,11 @@ class PrologEngine:
         for line in raw.strip().split('\n'):
             if ':' in line:
                 key, val = line.split(':', 1)
-                info[key.strip()] = val.strip()
+                info[key.strip().lower()] = val.strip()
         return info
 
 
-# ─────────────────────────────────────────────────────────────
-# ROUND-RECT HELPER
-# ─────────────────────────────────────────────────────────────
+# Funzione per disegnare rettangoli arrotondati
 def round_rect(canvas, x1, y1, x2, y2, radius=12, **kwargs):
     """Draw a rounded rectangle on a Tk Canvas."""
     r = radius
@@ -152,9 +145,7 @@ def round_rect(canvas, x1, y1, x2, y2, radius=12, **kwargs):
     return canvas.create_polygon(points, smooth=True, **kwargs)
 
 
-# ─────────────────────────────────────────────────────────────
-# MAIN APPLICATION
-# ─────────────────────────────────────────────────────────────
+# Classe della GUI Principale
 class MedExpertApp:
     ANIM_DURATION_MS = 500       # certainty bar animation time
     ANIM_STEPS       = 25        # animation steps
@@ -209,7 +200,7 @@ class MedExpertApp:
         self._build_body()
         self._build_footer()
 
-    # ─────────────── HEADER ───────────────
+    # Costruzione della parte superiore (Header)
     def _build_header(self):
         hdr = tk.Frame(self.root, bg=BG_PANEL, padx=20, pady=12)
         hdr.pack(fill='x', side='top')
@@ -235,7 +226,7 @@ class MedExpertApp:
         # bottom border
         tk.Frame(hdr, bg=BORDER, height=1).pack(fill='x', side='bottom')
 
-    # ─────────────── BODY (3 columns) ───────────────
+    # Corpo centrale dell'app con le 3 colonne
     def _build_body(self):
         body = tk.Frame(self.root, bg=BG_ROOT)
         body.pack(fill='both', expand=True, padx=6, pady=6)
@@ -246,7 +237,7 @@ class MedExpertApp:
         self._build_center_panel(body)
         self._build_right_panel(body)
 
-    # ── LEFT PANEL: symptoms ──
+    # Pannello di sinistra per scegliere i sintomi
     def _build_left_panel(self, parent):
         left = tk.Frame(parent, bg=BG_PANEL, width=320, bd=0, highlightthickness=0)
         left.grid(row=0, column=0, sticky='ns', padx=(0, 3))
@@ -396,7 +387,7 @@ class MedExpertApp:
         count = sum(1 for s in cat_symptoms if self.symptom_vars.get(s) and self.symptom_vars[s].get())
         count_var.set(str(count))
 
-    # ── CENTER PANEL: diagnosis results ──
+    # Pannello centrale con i risultati della diagnosi
     def _build_center_panel(self, parent):
         center = tk.Frame(parent, bg=BG_PANEL, bd=0, highlightthickness=0)
         center.grid(row=0, column=1, sticky='nsew', padx=3)
@@ -660,7 +651,7 @@ class MedExpertApp:
 
         threading.Thread(target=worker, daemon=True).start()
 
-    # ── RIGHT PANEL: details ──
+    # Pannello di destra con i dettagli della malattia selezionata
     def _build_right_panel(self, parent):
         right = tk.Frame(parent, bg=BG_PANEL, width=280, bd=0, highlightthickness=0)
         right.grid(row=0, column=2, sticky='ns', padx=(3, 0))
@@ -796,7 +787,7 @@ class MedExpertApp:
 
         self._set_status(f'Dettagli: {pretty_label(malattia)}')
 
-    # ─────────────── FOOTER ───────────────
+    # Barra inferiore con i bottoni
     def _build_footer(self):
         foot = tk.Frame(self.root, bg=BG_PANEL, padx=16, pady=10)
         foot.pack(fill='x', side='bottom')

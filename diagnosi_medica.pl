@@ -1,42 +1,17 @@
-%% ============================================================================
-%%  SISTEMA ESPERTO PER LA DIAGNOSI MEDICA
-%% ============================================================================
-%%
-%%  Corso:       Elementi di Intelligenza Artificiale
-%%  Professore:  Prof. Sperlì Giancarlo
-%%  Università:  Università degli Studi di Napoli "Parthenope"
-%%
-%%  Descrizione: Sistema esperto basato su regole per la diagnosi medica.
-%%               Il sistema utilizza una base di conoscenza contenente malattie,
-%%               sintomi, descrizioni e trattamenti. Dato un insieme di sintomi
-%%               forniti dal paziente, il sistema inferisce le possibili diagnosi
-%%               calcolando un indice di certezza basato sulla corrispondenza
-%%               tra i sintomi del paziente e quelli noti per ciascuna malattia.
-%%
-%%  Compatibilità: SWI-Prolog (versione 8.x o superiore)
-%%
-%%  Utilizzo:
-%%    ?- query_diagnosi('febbre_alta,tosse_secca,mal_di_testa').
-%%    ?- query_spiega(influenza, 'febbre_alta,tosse_secca').
-%%    ?- test_diagnosi.
-%%
-%% ============================================================================
+% Sistema Esperto per la Diagnosi Medica in Prolog
+% Progetto di Intelligenza Artificiale
+% Universita' Parthenope
+% Prof: Sperli' Giancarlo
+% Studente: Luciano Meccariello
+% Questo script definisce le malattie, i sintomi e le regole per la diagnosi.
 
 :- use_module(library(lists)).
 
 
-%% ============================================================================
-%%  SEZIONE 1: BASE DI CONOSCENZA - SINTOMI
-%% ============================================================================
-%%
-%%  Formato: sintomo(Malattia, Sintomo).
-%%  Ogni malattia è associata a 5-8 sintomi caratteristici.
-%%  I sintomi sono atomi in formato snake_case in italiano.
-%% ============================================================================
+% Fatti per le malattie e i loro sintomi
+% Le malattie sono raggruppate per categoria per comodita'
 
-%% ---------------------------------------------------------------------------
-%%  1.1 Malattie Respiratorie
-%% ---------------------------------------------------------------------------
+% --- Malattie Respiratorie ---
 
 %% Influenza - infezione virale stagionale delle vie respiratorie
 sintomo(influenza, febbre_alta).
@@ -76,9 +51,7 @@ sintomo(polmonite, sudorazione_notturna).
 sintomo(polmonite, respiro_affannoso).
 sintomo(polmonite, confusione).
 
-%% ---------------------------------------------------------------------------
-%%  1.2 Malattie Gastrointestinali
-%% ---------------------------------------------------------------------------
+% --- Malattie Gastrointestinali ---
 
 %% Gastrite - infiammazione della mucosa gastrica
 sintomo(gastrite, dolore_addominale).
@@ -104,9 +77,7 @@ sintomo(reflusso_gastroesofageo, tosse_secca).
 sintomo(reflusso_gastroesofageo, mal_di_gola).
 sintomo(reflusso_gastroesofageo, difficolta_respiratorie).
 
-%% ---------------------------------------------------------------------------
-%%  1.3 Malattie Neurologiche
-%% ---------------------------------------------------------------------------
+% --- Malattie Neurologiche ---
 
 %% Emicrania - cefalea ricorrente di natura neurologica
 sintomo(emicrania, mal_di_testa).
@@ -126,9 +97,7 @@ sintomo(meningite, vomito).
 sintomo(meningite, confusione).
 sintomo(meningite, stanchezza).
 
-%% ---------------------------------------------------------------------------
-%%  1.4 Malattie Cardiovascolari
-%% ---------------------------------------------------------------------------
+% --- Malattie Cardiovascolari ---
 
 %% Ipertensione - pressione arteriosa cronicamente elevata
 sintomo(ipertensione, mal_di_testa).
@@ -146,9 +115,7 @@ sintomo(tachicardia, respiro_affannoso).
 sintomo(tachicardia, stanchezza).
 sintomo(tachicardia, sudorazione_notturna).
 
-%% ---------------------------------------------------------------------------
-%%  1.5 Malattie Ematologiche
-%% ---------------------------------------------------------------------------
+% --- Malattie Ematologiche ---
 
 %% Anemia - riduzione dell'emoglobina nel sangue
 sintomo(anemia, stanchezza).
@@ -159,9 +126,7 @@ sintomo(anemia, mal_di_testa).
 sintomo(anemia, battito_accelerato).
 sintomo(anemia, respiro_affannoso).
 
-%% ---------------------------------------------------------------------------
-%%  1.6 Malattie Metaboliche
-%% ---------------------------------------------------------------------------
+% --- Malattie Metaboliche ---
 
 %% Diabete di tipo 2 - alterazione del metabolismo del glucosio
 sintomo(diabete_tipo2, sete_eccessiva).
@@ -171,9 +136,7 @@ sintomo(diabete_tipo2, visione_offuscata).
 sintomo(diabete_tipo2, perdita_appetito).
 sintomo(diabete_tipo2, debolezza).
 
-%% ---------------------------------------------------------------------------
-%%  1.7 Malattie Endocrine
-%% ---------------------------------------------------------------------------
+% --- Malattie Endocrine ---
 
 %% Ipotiroidismo - insufficiente produzione di ormoni tiroidei
 sintomo(ipotiroidismo, stanchezza).
@@ -184,9 +147,7 @@ sintomo(ipotiroidismo, perdita_capelli).
 sintomo(ipotiroidismo, debolezza).
 sintomo(ipotiroidismo, difficolta_concentrazione).
 
-%% ---------------------------------------------------------------------------
-%%  1.8 Malattie Urologiche
-%% ---------------------------------------------------------------------------
+% --- Malattie Urologiche ---
 
 %% Cistite - infezione delle vie urinarie
 sintomo(cistite, bruciore_minzione).
@@ -196,9 +157,7 @@ sintomo(cistite, urine_torbide).
 sintomo(cistite, febbre_lieve).
 sintomo(cistite, dolore_addominale).
 
-%% ---------------------------------------------------------------------------
-%%  1.9 Malattie Immunitarie
-%% ---------------------------------------------------------------------------
+% --- Malattie Immunitarie ---
 
 %% Allergia stagionale - reazione immunitaria a pollini e allergeni
 sintomo(allergia_stagionale, starnuti).
@@ -208,9 +167,7 @@ sintomo(allergia_stagionale, prurito_nasale).
 sintomo(allergia_stagionale, mal_di_testa).
 sintomo(allergia_stagionale, tosse_secca).
 
-%% ---------------------------------------------------------------------------
-%%  1.10 Malattie Psichiatriche
-%% ---------------------------------------------------------------------------
+% --- Malattie Psichiatriche ---
 
 %% Depressione - disturbo dell'umore persistente
 sintomo(depressione, tristezza).
@@ -222,13 +179,7 @@ sintomo(depressione, perdita_appetito).
 sintomo(depressione, mal_di_testa).
 
 
-%% ============================================================================
-%%  SEZIONE 2: BASE DI CONOSCENZA - DESCRIZIONI
-%% ============================================================================
-%%
-%%  Formato: descrizione(Malattia, Testo).
-%%  Breve descrizione clinica di ciascuna malattia.
-%% ============================================================================
+% Descrizioni delle malattie da mostrare nella GUI
 
 descrizione(influenza,
     'Infezione virale acuta delle vie respiratorie causata dai virus influenzali. Si manifesta tipicamente in forma stagionale con picchi nei mesi invernali.').
@@ -266,13 +217,7 @@ descrizione(depressione,
     'Disturbo dell\'umore caratterizzato da tristezza persistente, perdita di interesse e alterazioni cognitive. Richiede trattamento specialistico.').
 
 
-%% ============================================================================
-%%  SEZIONE 3: BASE DI CONOSCENZA - TRATTAMENTI
-%% ============================================================================
-%%
-%%  Formato: trattamento(Malattia, Testo).
-%%  Indicazioni terapeutiche generali per ciascuna malattia.
-%% ============================================================================
+% Consigli sui trattamenti per le malattie
 
 trattamento(influenza,
     'Riposo, idratazione abbondante, antipiretici (paracetamolo o ibuprofene). Nei casi a rischio, antivirali (oseltamivir). Vaccinazione preventiva.').
@@ -310,13 +255,7 @@ trattamento(depressione,
     'Psicoterapia (cognitivo-comportamentale), farmaci antidepressivi (SSRI come prima scelta), attivita\' fisica regolare. Supporto psicologico continuativo.').
 
 
-%% ============================================================================
-%%  SEZIONE 4: BASE DI CONOSCENZA - CATEGORIE
-%% ============================================================================
-%%
-%%  Formato: categoria(Malattia, Categoria).
-%%  Classificazione nosologica di ciascuna malattia.
-%% ============================================================================
+% Classificazione delle malattie per tipologia
 
 categoria(influenza, respiratoria).
 categoria(covid19, respiratoria).
@@ -346,14 +285,9 @@ categoria(allergia_stagionale, immunitaria).
 categoria(depressione, psichiatrica).
 
 
-%% ============================================================================
-%%  SEZIONE 5: REGOLE DI INFERENZA
-%% ============================================================================
-%%
-%%  Motore inferenziale del sistema esperto. Calcola le diagnosi possibili
-%%  a partire dai sintomi forniti dal paziente, con un indice di certezza
-%%  espresso in percentuale.
-%% ============================================================================
+% REGOLE DI INFERENZA
+% Questo e' il cuore del sistema. Usa la logica backward chaining 
+% per trovare le malattie in base ai sintomi inseriti.
 
 %% malattia(+X)
 %% Verifica se X è una malattia nota nella base di conoscenza.
@@ -410,14 +344,9 @@ sintomi_comuni(Malattia1, Malattia2, SintomiCondivisi) :-
     intersection(S1, S2, SintomiCondivisi).
 
 
-%% ============================================================================
-%%  SEZIONE 6: INTERFACCIA PER INTEGRAZIONE CON PYTHON
-%% ============================================================================
-%%
-%%  Predicati progettati per essere invocati da un'applicazione Python
-%%  tramite la libreria pyswip o tramite subprocess. L'input è una stringa
-%%  di sintomi separati da virgola, l'output è formattato per il parsing.
-%% ============================================================================
+% COMUNICAZIONE CON PYTHON
+% Regole usate da python per fare le query a prolog stampando il risultato
+% cosi il programma le puo' leggere easily.
 
 %% query_diagnosi(+SintomiAtom)
 %% Accetta una stringa di sintomi separati da virgola (es. 'febbre_alta,tosse_secca')
@@ -472,14 +401,8 @@ lista_tutte_malattie(Malattie) :-
     findall(M, malattia(M), Malattie).
 
 
-%% ============================================================================
-%%  SEZIONE 7: SUITE DI TEST
-%% ============================================================================
-%%
-%%  Predicato test_diagnosi/0 che esegue una serie di test automatizzati
-%%  per verificare il corretto funzionamento del motore inferenziale.
-%%  Ogni test stampa l'esito (SUPERATO/FALLITO) a console.
-%% ============================================================================
+% SCRIPT DI TEST
+% Lancia tutti i test per vedere se la logica e' corretta
 
 %% test_diagnosi/0
 %% Esegue tutti i test e stampa un riepilogo finale.
@@ -645,12 +568,8 @@ stampa_risultati_inline([certezza(C, M)|Rest]) :-
     stampa_risultati_inline(Rest).
 
 
-%% ============================================================================
-%%  SEZIONE 8: PREDICATI DI UTILITÀ
-%% ============================================================================
-%%
-%%  Predicati ausiliari per interrogazioni rapide dalla console SWI-Prolog.
-%% ============================================================================
+% PREDICATI DI UTILITA' EXTRA
+% Roba comoda per fare check da linea di comando
 
 %% mostra_malattie/0
 %% Stampa tutte le malattie con la relativa categoria.
@@ -718,20 +637,4 @@ diagnosi_differenziale(M1, M2) :-
     format('~n').
 
 
-%% ============================================================================
-%%  FINE DEL FILE
-%% ============================================================================
-%%
-%%  Per avviare il sistema, caricare il file in SWI-Prolog:
-%%    ?- [diagnosi_medica].
-%%
-%%  Esempi di utilizzo:
-%%    ?- test_diagnosi.
-%%    ?- mostra_malattie.
-%%    ?- mostra_info(influenza).
-%%    ?- query_diagnosi('febbre_alta,tosse_secca,mal_di_testa').
-%%    ?- query_spiega(influenza, 'febbre_alta,tosse_secca').
-%%    ?- diagnosi_differenziale(influenza, covid19).
-%%    ?- malattie_per_categoria(respiratoria, M).
-%%
-%% ============================================================================
+% Fine del file prolog. Ciao!
