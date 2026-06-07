@@ -1,13 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Generatore PDF - Documentazione Accademica MedExpert AI
-Università degli Studi di Napoli Parthenope
-Corso: Elementi di Intelligenza Artificiale
-Prof. Giancarlo Sperlì
-Studente: Luciano Meccariello
-A.A. 2025/2026
-"""
+# Script che genera la documentazione PDF del progetto MedExpert AI.
+# Si usa reportlab: si costruisce una "story" di paragrafi, tabelle e codice e
+# poi la libreria si occupa di impaginarla in A4.
+# Corso di Elementi di IA - Universita' Federico II di Napoli - A.A. 2025/2026.
 
 import os
 from reportlab.lib.pagesizes import A4
@@ -23,7 +19,8 @@ from reportlab.platypus.tableofcontents import TableOfContents
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
-# ─────────────────────────── COLORI ───────────────────────────
+
+# --- Palette colori del documento ---
 DARK_BLUE   = HexColor("#1a2e4a")
 ACCENT_BLUE = HexColor("#2e6da4")
 LIGHT_BLUE  = HexColor("#d6e4f0")
@@ -41,9 +38,9 @@ WARNING_RED   = HexColor("#dc3545")
 PAGE_W, PAGE_H = A4
 
 
-# ─────────────────────── STILI PERSONALIZZATI ─────────────────
+# --- Stili dei paragrafi ---
+# Tutti gli stili sono definiti qui per non sparpagliarli nelle varie sezioni.
 def build_styles():
-    """Costruisce l'insieme completo di stili per il documento."""
     styles = getSampleStyleSheet()
 
     styles.add(ParagraphStyle(
@@ -92,83 +89,83 @@ def build_styles():
         spaceAfter=4,
     ))
 
-    # Titoli sezione
+    # Header di sezione (H1, H2, H3) usati nel corpo del documento.
     styles.add(ParagraphStyle(
         name='SectionH1',
         fontName='Helvetica-Bold',
-        fontSize=18,
+        fontSize=16,
         textColor=white,
         alignment=TA_LEFT,
-        leading=24,
-        spaceBefore=18,
-        spaceAfter=10,
+        leading=21,
+        spaceBefore=12,
+        spaceAfter=8,
         leftIndent=0,
         backColor=DARK_BLUE,
-        borderPadding=(8, 10, 8, 10),
+        borderPadding=(6, 9, 6, 9),
     ))
     styles.add(ParagraphStyle(
         name='SectionH2',
         fontName='Helvetica-Bold',
-        fontSize=14,
+        fontSize=13,
         textColor=DARK_BLUE,
         alignment=TA_LEFT,
-        leading=20,
-        spaceBefore=14,
-        spaceAfter=6,
+        leading=17,
+        spaceBefore=10,
+        spaceAfter=4,
         borderWidth=0,
         borderColor=ACCENT_BLUE,
-        borderPadding=(0, 0, 2, 0),
+        borderPadding=(0, 0, 1, 0),
     ))
     styles.add(ParagraphStyle(
         name='SectionH3',
         fontName='Helvetica-Bold',
-        fontSize=12,
+        fontSize=11.5,
         textColor=ACCENT_BLUE,
         alignment=TA_LEFT,
-        leading=16,
-        spaceBefore=10,
-        spaceAfter=4,
+        leading=14,
+        spaceBefore=6,
+        spaceAfter=3,
     ))
 
-    # Corpo testo
+    # Stili per il corpo del testo: paragrafo giustificato e bullet point.
     styles.add(ParagraphStyle(
         name='BodyJ',
         fontName='Helvetica',
-        fontSize=10.5,
+        fontSize=10,
         textColor=DARK_TEXT,
         alignment=TA_JUSTIFY,
-        leading=15,
+        leading=13.5,
         spaceBefore=2,
-        spaceAfter=6,
+        spaceAfter=5,
         firstLineIndent=0,
     ))
     styles.add(ParagraphStyle(
         name='BodyBullet',
         fontName='Helvetica',
-        fontSize=10.5,
+        fontSize=10,
         textColor=DARK_TEXT,
         alignment=TA_LEFT,
-        leading=15,
+        leading=13.5,
         spaceBefore=1,
         spaceAfter=3,
-        leftIndent=18,
-        bulletIndent=6,
+        leftIndent=16,
+        bulletIndent=5,
     ))
 
-    # Codice
+    # Blocchi di codice e codice inline (font monospace + sfondo grigio).
     styles.add(ParagraphStyle(
         name='CodeBlock',
         fontName='Courier',
-        fontSize=8.5,
+        fontSize=8,
         textColor=DARK_TEXT,
         alignment=TA_LEFT,
-        leading=12,
+        leading=11,
         spaceBefore=4,
         spaceAfter=4,
-        leftIndent=8,
-        rightIndent=8,
+        leftIndent=6,
+        rightIndent=6,
         backColor=CODE_BG,
-        borderPadding=(6, 8, 6, 8),
+        borderPadding=(4, 6, 4, 6),
         borderWidth=0.5,
         borderColor=CODE_BORDER,
     ))
@@ -180,96 +177,101 @@ def build_styles():
         backColor=CODE_BG,
     ))
 
-    # Didascalie / Note
+    # Didascalia (sotto tabelle e listati) e note in corsivo.
     styles.add(ParagraphStyle(
         name='Caption',
         fontName='Helvetica-Oblique',
         fontSize=9,
         textColor=MUTED_TEXT,
         alignment=TA_CENTER,
-        leading=13,
+        leading=12,
         spaceBefore=2,
         spaceAfter=8,
     ))
     styles.add(ParagraphStyle(
         name='Note',
         fontName='Helvetica-Oblique',
-        fontSize=9.5,
+        fontSize=9,
         textColor=MUTED_TEXT,
         alignment=TA_JUSTIFY,
-        leading=13,
-        spaceBefore=4,
-        spaceAfter=6,
+        leading=11,
+        spaceBefore=2,
+        spaceAfter=3,
         leftIndent=12,
         rightIndent=12,
     ))
 
-    # Indice
+    # Stili dell'indice (voci + titolo).
     styles.add(ParagraphStyle(
         name='TOCEntry',
         fontName='Helvetica',
-        fontSize=12,
+        fontSize=11,
         textColor=DARK_TEXT,
         alignment=TA_LEFT,
-        leading=22,
-        spaceBefore=3,
-        spaceAfter=3,
+        leading=16,
+        spaceBefore=1,
+        spaceAfter=1,
         leftIndent=10,
     ))
     styles.add(ParagraphStyle(
         name='TOCTitle',
         fontName='Helvetica-Bold',
-        fontSize=22,
+        fontSize=20,
         textColor=DARK_BLUE,
         alignment=TA_CENTER,
-        leading=28,
-        spaceBefore=20,
-        spaceAfter=20,
+        leading=24,
+        spaceBefore=10,
+        spaceAfter=10,
     ))
 
     return styles
 
 
-# ────────────────────── UTILITÀ ──────────────────────
+# --- Funzioni di utilita' ---
+
 def hr():
-    """Linea orizzontale decorativa."""
+    # Linea orizzontale "spessa" usata come separatore tra sezioni.
     return HRFlowable(
         width="100%", thickness=1, color=ACCENT_BLUE,
         spaceBefore=8, spaceAfter=8
     )
 
+
 def thin_hr():
+    # Linea sottile, usata tra le voci dell'indice.
     return HRFlowable(
         width="100%", thickness=0.5, color=LIGHT_BLUE,
-        spaceBefore=4, spaceAfter=4
+        spaceBefore=2, spaceAfter=2
     )
 
+
 def make_table(headers, rows, col_widths=None):
-    """Crea una tabella con stile professionale e righe alternate."""
+    # Crea una tabella con header colorato e righe a zebra.
+    # Se non passiamo col_widths, reportlab divide lo spazio in parti uguali.
     data = [headers] + rows
     if col_widths is None:
         col_widths = [None] * len(headers)
 
     t = Table(data, colWidths=col_widths, repeatRows=1)
     style_cmds = [
-        # Intestazione
+        # Riga di intestazione: sfondo blu, testo bianco, bold.
         ('BACKGROUND', (0, 0), (-1, 0), TABLE_HEAD),
         ('TEXTCOLOR', (0, 0), (-1, 0), white),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, 0), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
-        ('TOPPADDING', (0, 0), (-1, 0), 8),
-        # Corpo
+        ('FONTSIZE', (0, 0), (-1, 0), 9.5),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 6),
+        ('TOPPADDING', (0, 0), (-1, 0), 6),
+        # Righe del corpo.
         ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
         ('FONTSIZE', (0, 1), (-1, -1), 9),
-        ('BOTTOMPADDING', (0, 1), (-1, -1), 6),
-        ('TOPPADDING', (0, 1), (-1, -1), 6),
-        # Griglia
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 5),
+        ('TOPPADDING', (0, 1), (-1, -1), 5),
+        # Griglia e allineamento.
         ('GRID', (0, 0), (-1, -1), 0.4, ACCENT_BLUE),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
     ]
-    # Righe alternate
+    # Effetto zebra sulle righe.
     for i in range(1, len(data)):
         bg = ROW_EVEN if i % 2 == 0 else ROW_ODD
         style_cmds.append(('BACKGROUND', (0, i), (-1, i), bg))
@@ -279,20 +281,22 @@ def make_table(headers, rows, col_widths=None):
 
 
 def code_block(text, styles):
-    """Blocco di codice preformattato."""
-    # Escaping XML chars
+    # Prende del testo e lo renderizza come blocco di codice.
+    # Bisogna fare l'escape dei caratteri speciali XML (& < >) altrimenti
+    # reportlab li interpreta come tag e crasha.
     text = text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
     return Paragraph(text.replace('\n', '<br/>'), styles['CodeBlock'])
 
 
-# ──────────────────── HEADER / FOOTER ────────────────────
+# --- Header e footer di pagina ---
+# Vengono richiamati da reportlab su ogni pagina tramite onLaterPages.
 def header_footer(canvas, doc):
-    """Disegna intestazione e piè di pagina su ogni pagina (tranne la prima)."""
     canvas.saveState()
     page_num = doc.page
 
+    # Saltiamo la copertina (pagina 1), li' non vogliamo header/footer.
     if page_num > 1:
-        # Intestazione
+        # Banda blu in alto con titolo del progetto e ateneo.
         canvas.setFillColor(DARK_BLUE)
         canvas.rect(0, PAGE_H - 22 * mm, PAGE_W, 22 * mm, fill=1, stroke=0)
         canvas.setFillColor(white)
@@ -300,9 +304,9 @@ def header_footer(canvas, doc):
         canvas.drawString(2 * cm, PAGE_H - 14 * mm,
                           "MedExpert AI — Sistema Esperto di Diagnosi Medica")
         canvas.drawRightString(PAGE_W - 2 * cm, PAGE_H - 14 * mm,
-                               "Università degli Studi di Napoli Parthenope")
+                               "Università degli Studi di Napoli Federico II")
 
-        # Piè di pagina
+        # Banda chiara in basso con nome corso e numero di pagina.
         canvas.setFillColor(LIGHT_BLUE)
         canvas.rect(0, 0, PAGE_W, 12 * mm, fill=1, stroke=0)
         canvas.setFillColor(DARK_BLUE)
@@ -314,13 +318,13 @@ def header_footer(canvas, doc):
     canvas.restoreState()
 
 
-# ════════════════════ PAGINA DI COPERTINA ════════════════════
+# ===== Pagina di copertina =====
 def build_cover(story, styles):
     story.append(Spacer(1, 1.5 * cm))
 
-    # Banner blu scuro
+    # Banner scuro in alto con il nome dell'universita'.
     banner_data = [[
-        Paragraph("UNIVERSITÀ DEGLI STUDI DI NAPOLI PARTHENOPE",
+        Paragraph("UNIVERSITÀ DEGLI STUDI DI NAPOLI FEDERICO II",
                   styles['CoverUniversity'])
     ]]
     banner = Table(banner_data, colWidths=[PAGE_W - 4 * cm])
@@ -335,7 +339,7 @@ def build_cover(story, styles):
     story.append(banner)
     story.append(Spacer(1, 0.3 * cm))
 
-    # Sotto-banner corso
+    # Banner piu' chiaro col nome del corso.
     sub_data = [[
         Paragraph("Corso di Elementi di Intelligenza Artificiale",
                   styles['CoverCourse'])
@@ -351,7 +355,7 @@ def build_cover(story, styles):
 
     story.append(Spacer(1, 2.5 * cm))
 
-    # Titolo progetto
+    # Titolo del progetto, ben grosso al centro.
     story.append(Paragraph(
         "MedExpert AI",
         styles['CoverTitle']
@@ -377,7 +381,7 @@ def build_cover(story, styles):
 
     story.append(Spacer(1, 3.5 * cm))
 
-    # Info autore / relatore
+    # Tabella docente / studente.
     info_data = [
         [Paragraph("<b>Docente:</b>", styles['CoverInfo']),
          Paragraph("<b>Studente:</b>", styles['CoverInfo'])],
@@ -396,7 +400,7 @@ def build_cover(story, styles):
 
     story.append(Spacer(1, 2.5 * cm))
 
-    # Anno accademico
+    # Riga finale con l'anno accademico.
     aa_data = [[Paragraph("Anno Accademico 2025/2026", styles['CoverInfo'])]]
     aa_table = Table(aa_data, colWidths=[PAGE_W - 4 * cm])
     aa_table.setStyle(TableStyle([
@@ -410,23 +414,21 @@ def build_cover(story, styles):
     story.append(PageBreak())
 
 
-# ════════════════════ INDICE ════════════════════
+# ===== Indice =====
 def build_toc(story, styles):
     story.append(Paragraph("Indice", styles['TOCTitle']))
     story.append(hr())
     story.append(Spacer(1, 0.4 * cm))
 
     sections = [
-        ("1", "Introduzione ai Sistemi Esperti"),
-        ("2", "Obiettivo del Progetto"),
-        ("3", "Il Dominio: Diagnosi Medica"),
-        ("4", "Architettura del Sistema"),
-        ("5", "Knowledge Base in Prolog"),
-        ("6", "Regole di Inferenza"),
-        ("7", "Interfaccia Grafica (Python / Tkinter)"),
-        ("8", "Test e Validazione"),
-        ("9", "Confronto con Approcci Alternativi"),
-        ("10", "Conclusioni e Sviluppi Futuri"),
+        ("1", "Obiettivo del Progetto"),
+        ("2", "Il Dominio: Diagnosi Medica"),
+        ("3", "Architettura del Sistema"),
+        ("4", "Knowledge Base in Prolog"),
+        ("5", "Regole di Inferenza"),
+        ("6", "Interfaccia Grafica (Python / Tkinter)"),
+        ("7", "Test e Validazione"),
+        ("8", "Conclusioni e Sviluppi Futuri"),
     ]
 
     for num, title in sections:
@@ -437,7 +439,7 @@ def build_toc(story, styles):
         story.append(entry)
         story.append(thin_hr())
 
-    story.append(Spacer(1, 1 * cm))
+    story.append(Spacer(1, 0.5 * cm))
     story.append(Paragraph(
         "<i>Documento generato automaticamente — Maggio 2026</i>",
         styles['Caption']
@@ -445,75 +447,9 @@ def build_toc(story, styles):
     story.append(PageBreak())
 
 
-# ════════════════════ SEZIONE 1 ════════════════════
+# --- Sezione 1: Obiettivo del progetto ---
 def build_section_1(story, s):
-    story.append(Paragraph("1. Introduzione ai Sistemi Esperti", s['SectionH1']))
-    story.append(Spacer(1, 0.3 * cm))
-
-    story.append(Paragraph("1.1 Che cos'è un Sistema Esperto?", s['SectionH2']))
-    story.append(Paragraph(
-        "Un <b>sistema esperto</b> (in inglese <i>Expert System</i>) è un programma informatico "
-        "che emula il processo decisionale di un esperto umano in uno specifico dominio di conoscenza. "
-        "Nato nell'ambito dell'Intelligenza Artificiale simbolica negli anni '70, il sistema esperto "
-        "rappresenta uno dei paradigmi più consolidati dell'AI classica. A differenza degli approcci "
-        "basati su apprendimento automatico, un sistema esperto opera su una <b>base di conoscenza</b> "
-        "(<i>Knowledge Base</i>) esplicita, codificata sotto forma di regole e fatti, e utilizza un "
-        "<b>motore inferenziale</b> (<i>Inference Engine</i>) per derivare nuove conclusioni a partire "
-        "dai dati forniti dall'utente.", s['BodyJ']))
-
-    story.append(Paragraph(
-        "L'architettura classica di un sistema esperto si compone di tre elementi fondamentali:", s['BodyJ']))
-
-    components = [
-        ("<b>Knowledge Base (KB)</b> — La base di conoscenza contiene l'insieme dei fatti e delle "
-         "regole che codificano l'esperienza del dominio. Nel nostro caso, la KB include informazioni "
-         "su malattie, sintomi, trattamenti e relazioni diagnostiche, tutte espresse in logica Prolog."),
-        ("<b>Inference Engine</b> — Il motore inferenziale è il cuore computazionale del sistema. "
-         "Applica le regole della KB ai fatti disponibili per derivare conclusioni. Può operare in "
-         "modalità <i>forward chaining</i> (dai fatti alle conclusioni) o <i>backward chaining</i> "
-         "(dalle ipotesi ai fatti di supporto). MedExpert AI utilizza il backward chaining di Prolog."),
-        ("<b>User Interface</b> — L'interfaccia utente permette l'interazione con il sistema. "
-         "Nel nostro progetto, questa è implementata tramite una GUI Python con Tkinter, che offre "
-         "un'esperienza intuitiva per la selezione dei sintomi e la visualizzazione delle diagnosi."),
-    ]
-    for comp in components:
-        story.append(Paragraph(f"• {comp}", s['BodyBullet']))
-
-    story.append(Spacer(1, 0.2 * cm))
-    story.append(Paragraph("1.2 Contesto Storico", s['SectionH2']))
-    story.append(Paragraph(
-        "I sistemi esperti hanno una storia ricca e affascinante nell'ambito dell'Intelligenza Artificiale. "
-        "Tra i primi e più celebri esempi troviamo:", s['BodyJ']))
-    story.append(Paragraph(
-        "• <b>DENDRAL</b> (1965) — Sviluppato a Stanford da Edward Feigenbaum e Joshua Lederberg, "
-        "è considerato il primo sistema esperto in assoluto. Analizzava dati di spettrometria di massa "
-        "per determinare la struttura molecolare di composti chimici sconosciuti.", s['BodyBullet']))
-    story.append(Paragraph(
-        "• <b>MYCIN</b> (1972) — Sviluppato anch'esso a Stanford, MYCIN è il sistema esperto più "
-        "influente nel campo medico. Diagnosticava infezioni batteriche del sangue e raccomandava "
-        "antibiotici appropriati. Introduceva il concetto di <b>fattori di certezza</b> (certainty factors), "
-        "un approccio alla gestione dell'incertezza che abbiamo adottato anche in MedExpert AI.", s['BodyBullet']))
-    story.append(Paragraph(
-        "• <b>XCON/R1</b> (1980) — Utilizzato da Digital Equipment Corporation per configurare "
-        "ordini di computer VAX. È stato uno dei primi sistemi esperti con successo commerciale, "
-        "dimostrando il valore pratico di questa tecnologia.", s['BodyBullet']))
-
-    story.append(Spacer(1, 0.2 * cm))
-    story.append(Paragraph("1.3 Rilevanza per il Corso", s['SectionH2']))
-    story.append(Paragraph(
-        "Il progetto MedExpert AI si inserisce pienamente nel programma del corso di <i>Elementi di "
-        "Intelligenza Artificiale</i> del Prof. Sperlì, toccando temi fondamentali quali: la rappresentazione "
-        "della conoscenza tramite logica del primo ordine, il ragionamento automatico con backward chaining, "
-        "la gestione dell'incertezza tramite fattori di certezza, e la progettazione di sistemi intelligenti "
-        "con capacità di spiegazione (<i>explanation facility</i>). Il sistema dimostra concretamente come "
-        "i concetti teorici dell'AI simbolica possano essere applicati a problemi reali.", s['BodyJ']))
-
-    story.append(hr())
-
-
-# ════════════════════ SEZIONE 2 ════════════════════
-def build_section_2(story, s):
-    story.append(Paragraph("2. Obiettivo del Progetto", s['SectionH1']))
+    story.append(Paragraph("1. Obiettivo del Progetto", s['SectionH1']))
     story.append(Spacer(1, 0.3 * cm))
 
     story.append(Paragraph(
@@ -522,7 +458,7 @@ def build_section_2(story, s):
         "grafica moderna in Python. Il sistema è progettato per dimostrare i concetti fondamentali "
         "dei sistemi esperti in un contesto applicativo realistico e didatticamente significativo.", s['BodyJ']))
 
-    story.append(Paragraph("2.1 Obiettivi Specifici", s['SectionH2']))
+    story.append(Paragraph("1.1 Obiettivi Specifici", s['SectionH2']))
 
     objectives = [
         "Progettare e implementare una <b>Knowledge Base</b> in Prolog contenente oltre 15 patologie "
@@ -542,7 +478,7 @@ def build_section_2(story, s):
         story.append(Paragraph(f"<b>{i}.</b> {obj}", s['BodyBullet']))
 
     story.append(Spacer(1, 0.3 * cm))
-    story.append(Paragraph("2.2 Requisiti del Sistema", s['SectionH2']))
+    story.append(Paragraph("1.2 Requisiti del Sistema", s['SectionH2']))
     story.append(Paragraph(
         "Il sistema deve soddisfare i seguenti requisiti funzionali e non funzionali:", s['BodyJ']))
 
@@ -561,12 +497,12 @@ def build_section_2(story, s):
     story.append(hr())
 
 
-# ════════════════════ SEZIONE 3 ════════════════════
-def build_section_3(story, s):
-    story.append(Paragraph("3. Il Dominio: Diagnosi Medica", s['SectionH1']))
-    story.append(Spacer(1, 0.3 * cm))
+# --- Sezione 2: Dominio della diagnosi medica ---
+def build_section_2(story, s):
+    story.append(Paragraph("2. Il Dominio: Diagnosi Medica", s['SectionH1']))
+    story.append(Spacer(1, 0.25 * cm))
 
-    story.append(Paragraph("3.1 Perché la Diagnosi Medica?", s['SectionH2']))
+    story.append(Paragraph("2.1 Perché la Diagnosi Medica?", s['SectionH2']))
     story.append(Paragraph(
         "La diagnosi medica rappresenta un dominio ideale per l'applicazione dei sistemi esperti "
         "per diverse ragioni fondamentali. In primo luogo, il processo diagnostico è intrinsecamente "
@@ -587,7 +523,7 @@ def build_section_3(story, s):
         "il ragionamento seguito. Questa trasparenza è fondamentale sia per la fiducia dell'utente "
         "che per scopi didattici.", s['BodyJ']))
 
-    story.append(Paragraph("3.2 Il Processo Diagnostico come Inferenza Logica", s['SectionH2']))
+    story.append(Paragraph("2.2 Il Processo Diagnostico come Inferenza Logica", s['SectionH2']))
     story.append(Paragraph(
         "Il processo diagnostico può essere modellato come un problema di <b>inferenza logica</b>. "
         "Data una base di conoscenza che associa malattie a sintomi, e dato un insieme di sintomi "
@@ -606,7 +542,7 @@ def build_section_3(story, s):
         "che sono stati osservati nel paziente. Questo approccio permette di generare diagnosi "
         "multiple con diversi gradi di certezza.", s['BodyJ']))
 
-    story.append(Paragraph("3.3 Patologie Coperte", s['SectionH2']))
+    story.append(Paragraph("2.3 Patologie Coperte", s['SectionH2']))
     story.append(Paragraph(
         "MedExpert AI copre un ampio spettro di patologie comuni, organizzate in categorie mediche. "
         "Di seguito l'elenco completo delle 16 malattie presenti nella Knowledge Base:", s['BodyJ']))
@@ -637,12 +573,12 @@ def build_section_3(story, s):
     story.append(hr())
 
 
-# ════════════════════ SEZIONE 4 ════════════════════
-def build_section_4(story, s):
-    story.append(Paragraph("4. Architettura del Sistema", s['SectionH1']))
-    story.append(Spacer(1, 0.3 * cm))
+# --- Sezione 3: Architettura del sistema ---
+def build_section_3(story, s):
+    story.append(Paragraph("3. Architettura del Sistema", s['SectionH1']))
+    story.append(Spacer(1, 0.25 * cm))
 
-    story.append(Paragraph("4.1 Panoramica Architetturale", s['SectionH2']))
+    story.append(Paragraph("3.1 Panoramica Architetturale", s['SectionH2']))
     story.append(Paragraph(
         "MedExpert AI adotta un'architettura a <b>tre livelli</b> (three-tier), in cui ciascun "
         "livello ha responsabilità ben definite. Questa separazione garantisce modularità, "
@@ -671,7 +607,7 @@ def build_section_4(story, s):
     story.append(code_block(arch_text, s))
     story.append(Paragraph("Figura 1 — Architettura a tre livelli di MedExpert AI.", s['Caption']))
 
-    story.append(Paragraph("4.2 Comunicazione tra Python e Prolog", s['SectionH2']))
+    story.append(Paragraph("3.2 Comunicazione tra Python e Prolog", s['SectionH2']))
     story.append(Paragraph(
         "L'integrazione tra Python e SWI-Prolog avviene tramite il modulo <b>subprocess</b> della "
         "libreria standard Python. Python avvia un processo SWI-Prolog, invia query formattate "
@@ -686,7 +622,7 @@ def build_section_4(story, s):
         "chaining sulla KB e restituisce le diagnosi ordinate; (5) Python analizza l'output e "
         "aggiorna la GUI con i risultati.", s['BodyJ']))
 
-    story.append(Paragraph("4.3 Struttura dei File", s['SectionH2']))
+    story.append(Paragraph("3.3 Struttura dei File", s['SectionH2']))
 
     file_headers = ['File', 'Linguaggio', 'Ruolo']
     file_rows = [
@@ -700,12 +636,12 @@ def build_section_4(story, s):
     story.append(hr())
 
 
-# ════════════════════ SEZIONE 5 ════════════════════
-def build_section_5(story, s):
-    story.append(Paragraph("5. Knowledge Base in Prolog", s['SectionH1']))
-    story.append(Spacer(1, 0.3 * cm))
+# --- Sezione 4: Knowledge base in Prolog ---
+def build_section_4(story, s):
+    story.append(Paragraph("4. Knowledge Base in Prolog", s['SectionH1']))
+    story.append(Spacer(1, 0.25 * cm))
 
-    story.append(Paragraph("5.1 Struttura dei Fatti", s['SectionH2']))
+    story.append(Paragraph("4.1 Struttura dei Fatti", s['SectionH2']))
     story.append(Paragraph(
         "La Knowledge Base è organizzata utilizzando quattro predicati principali, ciascuno dei "
         "quali cattura un aspetto diverso della conoscenza medica:", s['BodyJ']))
@@ -724,7 +660,7 @@ def build_section_5(story, s):
     story.append(make_table(pred_headers, pred_rows, [2.8*cm, 1.5*cm, 4.5*cm, 7.2*cm]))
     story.append(Paragraph("Tabella 4 — Predicati della Knowledge Base.", s['Caption']))
 
-    story.append(Paragraph("5.2 Esempi di Fatti nella KB", s['SectionH2']))
+    story.append(Paragraph("4.2 Esempi di Fatti nella KB", s['SectionH2']))
     story.append(Paragraph(
         "Di seguito sono riportati alcuni esempi rappresentativi dei fatti codificati nella "
         "Knowledge Base Prolog:", s['BodyJ']))
@@ -779,7 +715,7 @@ def build_section_5(story, s):
     story.append(code_block(kb_code, s))
     story.append(Paragraph("Listato 1 — Estratto della Knowledge Base in Prolog.", s['Caption']))
 
-    story.append(Paragraph("5.3 Scelte Progettuali della KB", s['SectionH2']))
+    story.append(Paragraph("4.3 Scelte Progettuali della KB", s['SectionH2']))
     story.append(Paragraph(
         "La progettazione della Knowledge Base ha seguito alcuni principi fondamentali:", s['BodyJ']))
     story.append(Paragraph(
@@ -800,12 +736,12 @@ def build_section_5(story, s):
     story.append(hr())
 
 
-# ════════════════════ SEZIONE 6 ════════════════════
-def build_section_6(story, s):
-    story.append(Paragraph("6. Regole di Inferenza", s['SectionH1']))
-    story.append(Spacer(1, 0.3 * cm))
+# --- Sezione 5: Regole di inferenza ---
+def build_section_5(story, s):
+    story.append(Paragraph("5. Regole di Inferenza", s['SectionH1']))
+    story.append(Spacer(1, 0.25 * cm))
 
-    story.append(Paragraph("6.1 Diagnosi con Fattore di Certezza — diagnosi/3", s['SectionH2']))
+    story.append(Paragraph("5.1 Diagnosi con Fattore di Certezza — diagnosi/3", s['SectionH2']))
     story.append(Paragraph(
         "La regola principale del sistema esperto è <b>diagnosi/3</b>, che implementa il backward "
         "chaining con calcolo del fattore di certezza. Per ogni malattia nella KB, la regola "
@@ -827,7 +763,7 @@ def build_section_6(story, s):
     story.append(Paragraph("Listato 2 — Regola diagnosi/3 con calcolo del fattore di certezza.",
                            s['Caption']))
 
-    story.append(Paragraph("6.2 Formula del Fattore di Certezza", s['SectionH2']))
+    story.append(Paragraph("5.2 Formula del Fattore di Certezza", s['SectionH2']))
     story.append(Paragraph(
         "Il <b>Certainty Factor</b> (CF) è calcolato come rapporto tra il numero di sintomi "
         "corrispondenti e il numero totale di sintomi della malattia, moltiplicato per 100:", s['BodyJ']))
@@ -843,7 +779,7 @@ def build_section_6(story, s):
         "certezza sarà CF = (4/6) × 100 ≈ 66.7%. Questo approccio è ispirato ai fattori di "
         "certezza originariamente introdotti in MYCIN.", s['BodyJ']))
 
-    story.append(Paragraph("6.3 Diagnosi Ordinate — diagnosi_ordinate/2", s['SectionH2']))
+    story.append(Paragraph("5.3 Diagnosi Ordinate — diagnosi_ordinate/2", s['SectionH2']))
     story.append(Paragraph(
         "La regola <b>diagnosi_ordinate/2</b> raccoglie tutte le diagnosi possibili e le ordina "
         "per fattore di certezza decrescente, presentando le diagnosi più probabili per prime:", s['BodyJ']))
@@ -862,7 +798,7 @@ def build_section_6(story, s):
     story.append(code_block(sort_code, s))
     story.append(Paragraph("Listato 3 — Ordinamento delle diagnosi per certezza.", s['Caption']))
 
-    story.append(Paragraph("6.4 Facility di Spiegazione — spiega_diagnosi/4", s['SectionH2']))
+    story.append(Paragraph("5.4 Facility di Spiegazione — spiega_diagnosi/4", s['SectionH2']))
     story.append(Paragraph(
         "Una caratteristica fondamentale dei sistemi esperti è la capacità di <b>spiegare</b> il "
         "ragionamento che ha portato a una conclusione. La regola <b>spiega_diagnosi/4</b> genera "
@@ -884,7 +820,7 @@ def build_section_6(story, s):
     story.append(code_block(explain_code, s))
     story.append(Paragraph("Listato 4 — Regola per la spiegazione delle diagnosi.", s['Caption']))
 
-    story.append(Paragraph("6.5 Esempio Passo-Passo di Inferenza", s['SectionH2']))
+    story.append(Paragraph("5.5 Esempio Passo-Passo di Inferenza", s['SectionH2']))
     story.append(Paragraph(
         "Consideriamo un paziente che presenta i sintomi: <b>febbre</b>, <b>tosse</b>, "
         "<b>mal_di_gola</b> e <b>dolori_muscolari</b>. Il sistema esegue il seguente "
@@ -911,12 +847,12 @@ def build_section_6(story, s):
     story.append(hr())
 
 
-# ════════════════════ SEZIONE 7 ════════════════════
-def build_section_7(story, s):
-    story.append(Paragraph("7. Interfaccia Grafica (Python / Tkinter)", s['SectionH1']))
-    story.append(Spacer(1, 0.3 * cm))
+# --- Sezione 6: Interfaccia grafica ---
+def build_section_6(story, s):
+    story.append(Paragraph("6. Interfaccia Grafica (Python / Tkinter)", s['SectionH1']))
+    story.append(Spacer(1, 0.25 * cm))
 
-    story.append(Paragraph("7.1 Filosofia di Design", s['SectionH2']))
+    story.append(Paragraph("6.1 Filosofia di Design", s['SectionH2']))
     story.append(Paragraph(
         "L'interfaccia grafica di MedExpert AI è stata progettata seguendo una filosofia di "
         "<b>dark medical theme</b>, ispirata alle interfacce professionali dei software medici. "
@@ -941,7 +877,7 @@ def build_section_7(story, s):
     story.append(make_table(color_headers, color_rows, [3.2*cm, 3*cm, 2.5*cm, 7.3*cm]))
     story.append(Paragraph("Tabella 6 — Palette cromatica dell'interfaccia.", s['Caption']))
 
-    story.append(Paragraph("7.2 Layout a Tre Pannelli", s['SectionH2']))
+    story.append(Paragraph("6.2 Layout a Tre Pannelli", s['SectionH2']))
     story.append(Paragraph(
         "L'interfaccia è organizzata in un layout a <b>tre pannelli</b> affiancati, ciascuno "
         "con una funzione specifica:", s['BodyJ']))
@@ -985,7 +921,7 @@ def build_section_7(story, s):
         "includendo descrizione, trattamento raccomandato, elenco dei sintomi corrispondenti e "
         "la spiegazione del ragionamento diagnostico.", s['BodyBullet']))
 
-    story.append(Paragraph("7.3 Flusso di Interazione", s['SectionH2']))
+    story.append(Paragraph("6.3 Flusso di Interazione", s['SectionH2']))
     story.append(Paragraph(
         "Il flusso di interazione dell'utente con il sistema segue un percorso lineare e intuitivo:", s['BodyJ']))
     story.append(Paragraph(
@@ -1003,7 +939,7 @@ def build_section_7(story, s):
     story.append(Paragraph(
         "<b>7.</b> L'utente può premere «Reset» per cancellare tutto e ricominciare.", s['BodyBullet']))
 
-    story.append(Paragraph("7.4 Architettura del Codice Python", s['SectionH2']))
+    story.append(Paragraph("6.4 Architettura del Codice Python", s['SectionH2']))
     story.append(Paragraph(
         "Il codice Python è organizzato in una classe principale <b>MedExpertGUI</b> che gestisce "
         "l'intera interfaccia. I metodi principali sono:", s['BodyJ']))
@@ -1026,12 +962,13 @@ def build_section_7(story, s):
     story.append(hr())
 
 
-# ════════════════════ SEZIONE 8 ════════════════════
-def build_section_8(story, s):
-    story.append(Paragraph("8. Test e Validazione", s['SectionH1']))
-    story.append(Spacer(1, 0.3 * cm))
+# --- Sezione 7: Test e validazione ---
+def build_section_7(story, s):
+    story.append(PageBreak())
+    story.append(Paragraph("7. Test e Validazione", s['SectionH1']))
+    story.append(Spacer(1, 0.25 * cm))
 
-    story.append(Paragraph("8.1 Suite di Test", s['SectionH2']))
+    story.append(Paragraph("7.1 Suite di Test", s['SectionH2']))
     story.append(Paragraph(
         "MedExpert AI include una suite di test automatizzati scritta direttamente in Prolog, "
         "integrata nel file della Knowledge Base. I test verificano la correttezza delle diagnosi "
@@ -1045,7 +982,7 @@ def build_section_8(story, s):
     story.append(code_block(
         "swipl -g \"test_diagnosi, halt\" diagnosi_medica.pl", s))
 
-    story.append(Paragraph("8.2 Casi di Test", s['SectionH2']))
+    story.append(Paragraph("7.2 Casi di Test", s['SectionH2']))
     story.append(Paragraph(
         "Di seguito è riportata la tabella dei principali casi di test con i risultati ottenuti:", s['BodyJ']))
 
@@ -1084,7 +1021,9 @@ def build_section_8(story, s):
                             [0.8*cm, 4.2*cm, 2.8*cm, 2*cm, 3.2*cm, 2*cm]))
     story.append(Paragraph("Tabella 8 — Risultati della suite di test.", s['Caption']))
 
-    story.append(Paragraph("8.3 Codice di Test in Prolog", s['SectionH2']))
+    story.append(Spacer(1, 0.3 * cm))
+    story.append(Paragraph("7.3 Codice di Test in Prolog", s['SectionH2']))
+    story.append(Spacer(1, 0.15 * cm))
 
     test_code = (
         "%% Predicato principale per i test\n"
@@ -1116,7 +1055,7 @@ def build_section_8(story, s):
     story.append(code_block(test_code, s))
     story.append(Paragraph("Listato 5 — Estratto della suite di test in Prolog.", s['Caption']))
 
-    story.append(Paragraph("8.4 Risultati della Validazione", s['SectionH2']))
+    story.append(Paragraph("7.4 Risultati della Validazione", s['SectionH2']))
     story.append(Paragraph(
         "Tutti i 7 test case sono stati eseguiti con successo, confermando la correttezza del "
         "motore inferenziale e della Knowledge Base. Il sistema produce diagnosi accurate con "
@@ -1128,101 +1067,12 @@ def build_section_8(story, s):
     story.append(hr())
 
 
-# ════════════════════ SEZIONE 9 ════════════════════
-def build_section_9(story, s):
-    story.append(Paragraph("9. Confronto con Approcci Alternativi", s['SectionH1']))
-    story.append(Spacer(1, 0.3 * cm))
+# --- Sezione 8: Conclusioni e sviluppi futuri ---
+def build_section_8(story, s):
+    story.append(Paragraph("8. Conclusioni e Sviluppi Futuri", s['SectionH1']))
+    story.append(Spacer(1, 0.25 * cm))
 
-    story.append(Paragraph(
-        "Per contestualizzare il nostro approccio basato su sistema esperto, è utile confrontarlo "
-        "con le principali alternative disponibili nel campo dell'AI applicata alla diagnosi medica.", s['BodyJ']))
-
-    story.append(Paragraph("9.1 Tabella Comparativa", s['SectionH2']))
-
-    comp_headers = ['Caratteristica', 'Sistema Esperto\n(MedExpert AI)',
-                    'Machine Learning\n(es. Random Forest)', 'Deep Learning\n(es. Reti Neurali)']
-    comp_rows = [
-        ['Dati di training\nnecessari',
-         'Nessuno\n(conoscenza codificata)',
-         'Dataset medio\n(migliaia di campioni)',
-         'Dataset grande\n(milioni di campioni)'],
-        ['Spiegabilità',
-         'Alta\n(regole esplicite)',
-         'Media\n(feature importance)',
-         'Bassa\n(black box)'],
-        ['Accuratezza',
-         'Dipende dalla KB\n(limitata al dominio)',
-         'Alta con buoni dati',
-         'Molto alta con\nmolti dati'],
-        ['Gestione\nincertezza',
-         'Fattori di certezza\n(CF)',
-         'Probabilità\nstatistiche',
-         'Softmax /\nprobabilità'],
-        ['Manutenzione',
-         'Aggiornamento manuale\ndella KB',
-         'Re-training con\nnuovi dati',
-         'Re-training\ncostoso'],
-        ['Tempo di\nsviluppo',
-         'Medio\n(knowledge engineering)',
-         'Medio\n(feature engineering)',
-         'Alto\n(architettura + tuning)'],
-        ['Risorse\ncomputazionali',
-         'Minime\n(CPU base)',
-         'Moderate\n(CPU multi-core)',
-         'Elevate\n(GPU necessaria)'],
-        ['Adattabilità a\nnuovi domini',
-         'Richiede nuovo\nknowledge engineering',
-         'Richiede nuovi\ndati etichettati',
-         'Transfer learning\npossibile'],
-    ]
-    story.append(make_table(comp_headers, comp_rows,
-                            [3*cm, 3.5*cm, 3.5*cm, 3.5*cm]))
-    story.append(Paragraph("Tabella 9 — Confronto tra approcci AI per la diagnosi medica.",
-                           s['Caption']))
-
-    story.append(Paragraph("9.2 Vantaggi dei Sistemi a Regole", s['SectionH2']))
-    story.append(Paragraph(
-        "L'approccio basato su sistema esperto presenta vantaggi significativi in diversi contesti:", s['BodyJ']))
-    story.append(Paragraph(
-        "• <b>Spiegabilità completa</b> — Ogni diagnosi può essere giustificata mostrando le regole "
-        "e i fatti che l'hanno generata. In ambito medico, questa trasparenza è fondamentale per la "
-        "fiducia dei professionisti sanitari e per conformità alle normative.", s['BodyBullet']))
-    story.append(Paragraph(
-        "• <b>Nessun dato di training</b> — Il sistema funziona immediatamente con la conoscenza "
-        "codificata dall'esperto del dominio, senza necessità di dataset etichettati che in ambito "
-        "medico sono costosi e soggetti a vincoli di privacy.", s['BodyBullet']))
-    story.append(Paragraph(
-        "• <b>Determinismo</b> — A parità di input, il sistema produce sempre lo stesso output, "
-        "caratteristica desiderabile in applicazioni critiche come la diagnosi medica.", s['BodyBullet']))
-    story.append(Paragraph(
-        "• <b>Leggerezza computazionale</b> — Non richiede GPU o risorse cloud, può essere eseguito "
-        "su qualsiasi computer con SWI-Prolog e Python installati.", s['BodyBullet']))
-
-    story.append(Paragraph("9.3 Limitazioni", s['SectionH2']))
-    story.append(Paragraph(
-        "È importante riconoscere anche le limitazioni dell'approccio adottato:", s['BodyJ']))
-    story.append(Paragraph(
-        "• <b>Knowledge Engineering Bottleneck</b> — La codifica della conoscenza è un processo "
-        "manuale che richiede la collaborazione con esperti del dominio. L'aggiunta di nuove "
-        "malattie o l'aggiornamento delle conoscenze mediche richiede intervento umano.", s['BodyBullet']))
-    story.append(Paragraph(
-        "• <b>Scalabilità limitata</b> — Con l'aumentare della complessità del dominio (centinaia "
-        "di malattie, migliaia di sintomi), la manutenzione della KB diventa progressivamente "
-        "più onerosa.", s['BodyBullet']))
-    story.append(Paragraph(
-        "• <b>Modello di incertezza semplificato</b> — I fattori di certezza, pur efficaci, non "
-        "catturano le complesse relazioni probabilistiche tra sintomi e malattie che modelli "
-        "bayesiani o reti neurali possono apprendere dai dati.", s['BodyBullet']))
-
-    story.append(hr())
-
-
-# ════════════════════ SEZIONE 10 ════════════════════
-def build_section_10(story, s):
-    story.append(Paragraph("10. Conclusioni e Sviluppi Futuri", s['SectionH1']))
-    story.append(Spacer(1, 0.3 * cm))
-
-    story.append(Paragraph("10.1 Riepilogo dei Risultati", s['SectionH2']))
+    story.append(Paragraph("8.1 Riepilogo dei Risultati", s['SectionH2']))
     story.append(Paragraph(
         "Il progetto MedExpert AI ha dimostrato con successo la fattibilità e l'efficacia di un "
         "sistema esperto per la diagnosi medica, implementato combinando la potenza della "
@@ -1250,7 +1100,7 @@ def build_section_10(story, s):
         "Python (paradigma imperativo/OOP) dimostra la complementarità dei diversi approcci alla "
         "programmazione nell'ambito dell'AI.", s['BodyBullet']))
 
-    story.append(Paragraph("10.2 Sviluppi Futuri", s['SectionH2']))
+    story.append(Paragraph("8.2 Sviluppi Futuri", s['SectionH2']))
     story.append(Paragraph(
         "Il sistema può essere esteso e migliorato in diverse direzioni:", s['BodyJ']))
 
@@ -1274,9 +1124,9 @@ def build_section_10(story, s):
          'Interazione più naturale\ncon l\'utente'],
     ]
     story.append(make_table(future_headers, future_rows, [2.5*cm, 5.5*cm, 5*cm]))
-    story.append(Paragraph("Tabella 10 — Possibili sviluppi futuri del sistema.", s['Caption']))
+    story.append(Paragraph("Tabella 9 — Possibili sviluppi futuri del sistema.", s['Caption']))
 
-    story.append(Paragraph("10.3 Connessione ai Temi del Corso", s['SectionH2']))
+    story.append(Paragraph("8.3 Connessione ai Temi del Corso", s['SectionH2']))
     story.append(Paragraph(
         "In conclusione, MedExpert AI rappresenta un'applicazione concreta dei concetti fondamentali "
         "trattati nel corso di <i>Elementi di Intelligenza Artificiale</i>. Il progetto tocca i temi "
@@ -1293,11 +1143,11 @@ def build_section_10(story, s):
         "Python per l'interfaccia utente rappresenta un esempio efficace di come diversi paradigmi "
         "di programmazione possano essere integrati per realizzare sistemi AI completi e funzionali.", s['BodyJ']))
 
-    story.append(Spacer(1, 1 * cm))
+    story.append(Spacer(1, 0.3 * cm))
     story.append(hr())
-    story.append(Spacer(1, 0.5 * cm))
+    story.append(Spacer(1, 0.2 * cm))
 
-    # Chiusura
+    # Frase di chiusura + firma.
     story.append(Paragraph(
         "<i>«L'intelligenza artificiale non è un sostituto dell'intelligenza umana, "
         "ma uno strumento per amplificarla.»</i>",
@@ -1319,16 +1169,17 @@ def build_section_10(story, s):
     ))
 
 
-# ════════════════════ MAIN ════════════════════
+# --- Main ---
 def main():
+    # Mettiamo il PDF nella stessa cartella dello script.
     script_dir = os.path.dirname(os.path.abspath(__file__))
     output_path = os.path.join(script_dir, "Documentazione_MedExpert.pdf")
 
     doc = SimpleDocTemplate(
         output_path,
         pagesize=A4,
-        topMargin=2.8 * cm,
-        bottomMargin=2 * cm,
+        topMargin=2.4 * cm,
+        bottomMargin=1.8 * cm,
         leftMargin=2 * cm,
         rightMargin=2 * cm,
         title="MedExpert AI — Documentazione di Progetto",
@@ -1339,7 +1190,7 @@ def main():
     styles = build_styles()
     story = []
 
-    # Costruzione del documento
+    # Costruiamo il documento accodando alla story tutte le sezioni in ordine.
     build_cover(story, styles)
     build_toc(story, styles)
     build_section_1(story, styles)
@@ -1350,10 +1201,8 @@ def main():
     build_section_6(story, styles)
     build_section_7(story, styles)
     build_section_8(story, styles)
-    build_section_9(story, styles)
-    build_section_10(story, styles)
 
-    # Generazione PDF
+    # A questo punto reportlab si occupa di impaginare tutto.
     doc.build(story, onFirstPage=header_footer, onLaterPages=header_footer)
     print(f"✅ PDF generato con successo: {output_path}")
     print(f"   Dimensione: {os.path.getsize(output_path) / 1024:.1f} KB")
