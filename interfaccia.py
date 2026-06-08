@@ -24,6 +24,7 @@ GOLD     = '#ffc107'
 TEXT     = '#e0e8ff'
 DIM      = '#5a7a9a'
 BORDER   = '#1e3a5a'
+NAVY     = '#001f5b'
 
 # Sintomi raggruppati per categoria.
 # Ogni categoria viene poi mostrata come "sezione collassabile" nella sidebar.
@@ -809,7 +810,7 @@ class MedExpertApp:
         # Bottone "Analizza": e' quello che lancia la query a Prolog.
         self.btn_analyze = tk.Button(
             btn_frame, text='🔍 ANALIZZA SINTOMI', font=self.fnt_btn,
-            fg='white', bg=TEAL_DARK, activebackground=TEAL, activeforeground='white',
+            fg=NAVY, bg=TEAL_DARK, activebackground=TEAL, activeforeground=NAVY,
             relief='flat', padx=24, pady=8, cursor='hand2',
             command=self._on_analyze,
         )
@@ -819,7 +820,7 @@ class MedExpertApp:
         # Bottone "Reset": svuota le checkbox e i pannelli.
         btn_reset = tk.Button(
             btn_frame, text='🗑️ RESET', font=self.fnt_btn,
-            fg='white', bg='#7f1d1d', activebackground=RED, activeforeground='white',
+            fg=NAVY, bg='#7f1d1d', activebackground=RED, activeforeground=NAVY,
             relief='flat', padx=16, pady=8, cursor='hand2',
             command=self._on_reset,
         )
@@ -829,7 +830,7 @@ class MedExpertApp:
         # Bottone "Fullscreen": idem ad F11.
         btn_fs = tk.Button(
             btn_frame, text='⛶ FULLSCREEN', font=self.fnt_btn,
-            fg=TEXT, bg='#2a3a50', activebackground='#3a5070', activeforeground=TEXT,
+            fg=NAVY, bg='#2a3a50', activebackground='#3a5070', activeforeground=NAVY,
             relief='flat', padx=16, pady=8, cursor='hand2',
             command=self._toggle_fullscreen,
         )

@@ -135,9 +135,11 @@ PROGETTO AI FINALE/
 
 ---
 
-## 👨‍💻 Autore
+## 👨‍💻 Autori
 
-**Luciano Meccariello**  
+**Luciano Meccariello N46007465**  
+**Gaspare Tortora N46007942**  
+**Andrea Francesco Bruno N46007639**  
 Università degli Studi di Napoli Federico II  
 Corso di Elementi di Intelligenza Artificiale  
 Prof. Giancarlo Sperlì
