@@ -1,7 +1,7 @@
 # 🏥 MedExpert AI — Sistema Esperto di Diagnosi Medica
 
 **Progetto di Elementi di Intelligenza Artificiale**  
-Prof. Giancarlo Sperlì · Università degli Studi di Napoli Parthenope  
+Prof. Giancarlo Sperlì · Università degli Studi di Napoli Federico II  
 A.A. 2025/2026
 
 ---
@@ -11,14 +11,15 @@ A.A. 2025/2026
 MedExpert AI è un **sistema esperto di diagnosi medica** implementato in **Prolog** con
 interfaccia grafica premium in **Python/Tkinter**.
 
-Il sistema utilizza una Knowledge Base di **15+ malattie** con i relativi sintomi, e attraverso
-**regole di inferenza** e **fattori di certezza**, è in grado di suggerire le possibili diagnosi
-dato un insieme di sintomi selezionati dall'utente.
+Il sistema utilizza una Knowledge Base di **17 malattie organizzate in 10 categorie** con i
+relativi sintomi, e attraverso **regole di inferenza** e l'**Indice di Copertura Sintomatica
+(ICS)**, è in grado di suggerire le diagnosi candidate dato un insieme di sintomi selezionati
+dall'utente.
 
 ### Caratteristiche principali:
-- 🧬 **Knowledge Base** ricca con 15+ malattie, 40+ sintomi, descrizioni e trattamenti
-- 🔍 **Motore di inferenza** con backward chaining e fattori di certezza
-- 💡 **Explanation facility** — spiega il ragionamento dietro ogni diagnosi
+- 🧬 **Knowledge Base** con 17 malattie, 44 sintomi unici, descrizioni e trattamenti
+- 🔍 **Motore di inferenza** goal-driven (backward chaining) con calcolo dell'ICS
+- 💡 **Explanation facility** — espone sintomi trovati e mancanti per ogni diagnosi
 - 🖥️ **Interfaccia grafica** moderna con tema medico premium
 - 📄 **Documentazione** PDF accademica completa
 
@@ -72,7 +73,7 @@ python3 genera_pdf.py
 
 1. **Seleziona i sintomi** dalla checklist a sinistra (organizzati per categoria)
 2. Clicca **🔍 ANALIZZA SINTOMI**
-3. Le diagnosi possibili appariranno ordinate per **certezza** (%)
+3. Le diagnosi candidate appariranno ordinate per **ICS** (%) — Indice di Copertura Sintomatica
 4. **Clicca su una diagnosi** per vedere i dettagli nel pannello destro:
    - Sintomi trovati ✅
    - Sintomi mancanti ❌
@@ -110,13 +111,13 @@ PROGETTO AI FINALE/
 │           MOTORE DI INFERENZA                    │
 │              (SWI-Prolog)                        │
 │  ┌──────────────────────────────────────────┐   │
-│  │  diagnosi/3    →  Backward Chaining      │   │
-│  │  certezza      →  Fattori di Certezza    │   │
-│  │  spiega/4      →  Explanation Facility   │   │
+│  │  diagnosi/3         →  Backward Chaining │   │
+│  │  ICS                →  Copertura sintomi │   │
+│  │  spiega_diagnosi/4  →  Explanation       │   │
 │  └──────────────────────────────────────────┘   │
 │  ┌──────────────────────────────────────────┐   │
 │  │  KNOWLEDGE BASE                          │   │
-│  │  15+ malattie · 40+ sintomi · regole     │   │
+│  │  17 malattie · 44 sintomi · 10 categorie │   │
 │  └──────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────┘
 ```
@@ -126,6 +127,6 @@ PROGETTO AI FINALE/
 ## 👨‍💻 Autore
 
 **Luciano Meccariello**  
-Università degli Studi di Napoli Parthenope  
+Università degli Studi di Napoli Federico II  
 Corso di Elementi di Intelligenza Artificiale  
 Prof. Giancarlo Sperlì

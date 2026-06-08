@@ -461,12 +461,14 @@ def build_section_1(story, s):
     story.append(Paragraph("1.1 Obiettivi Specifici", s['SectionH2']))
 
     objectives = [
-        "Progettare e implementare una <b>Knowledge Base</b> in Prolog contenente oltre 15 patologie "
+        "Progettare e implementare una <b>Knowledge Base</b> in Prolog contenente 17 patologie "
         "mediche con i rispettivi sintomi, categorie, descrizioni e trattamenti.",
-        "Implementare un <b>motore inferenziale</b> basato su backward chaining che calcoli diagnosi "
-        "con fattori di certezza, ordinando i risultati per probabilità decrescente.",
-        "Realizzare un meccanismo di <b>spiegazione</b> (<i>explanation facility</i>) che giustifichi "
-        "ogni diagnosi mostrando quali sintomi corrispondono e il calcolo del fattore di certezza.",
+        "Implementare un <b>motore inferenziale</b> goal-driven (backward chaining) che calcoli, "
+        "per ogni malattia, un <b>indice di copertura sintomatica</b> e ordini i risultati per "
+        "valore decrescente.",
+        "Realizzare un meccanismo di <b>spiegazione</b> (<i>explanation facility</i>) che, per ogni "
+        "diagnosi, espliciti quali sintomi della malattia sono stati trovati nel paziente e quali "
+        "risultano mancanti.",
         "Sviluppare un'<b>interfaccia grafica</b> intuitiva con tema medicale scuro, che permetta la "
         "selezione interattiva dei sintomi e la visualizzazione chiara dei risultati diagnostici.",
         "Integrare Prolog e Python tramite <b>subprocess</b>, dimostrando l'interoperabilità tra "
@@ -509,13 +511,14 @@ def build_section_2(story, s):
         "<b>basato su regole</b>: i medici utilizzano la propria esperienza e conoscenza per "
         "correlare insiemi di sintomi a possibili patologie, seguendo un ragionamento logico che "
         "può essere formalizzato in regole del tipo «se il paziente presenta i sintomi X, Y e Z, "
-        "allora la diagnosi probabile è W con certezza C%».", s['BodyJ']))
+        "allora una diagnosi candidata è W».", s['BodyJ']))
 
     story.append(Paragraph(
-        "In secondo luogo, la diagnosi medica richiede la gestione dell'<b>incertezza</b>: raramente "
-        "un paziente presenta tutti i sintomi caratteristici di una patologia, e spesso gli stessi "
-        "sintomi possono essere associati a malattie diverse. Questa caratteristica rende il dominio "
-        "particolarmente adatto a dimostrare l'uso dei fattori di certezza.", s['BodyJ']))
+        "In secondo luogo, la diagnosi medica è un problema di <b>copertura sintomatologica "
+        "parziale</b>: raramente un paziente presenta tutti i sintomi caratteristici di una "
+        "patologia, e spesso gli stessi sintomi possono essere associati a malattie diverse. Questa "
+        "caratteristica si presta naturalmente a un meccanismo di ranking delle diagnosi, anziché "
+        "a una risposta binaria.", s['BodyJ']))
 
     story.append(Paragraph(
         "Infine, la diagnosi medica richiede una <b>capacità di spiegazione</b>: non è sufficiente "
@@ -527,49 +530,66 @@ def build_section_2(story, s):
     story.append(Paragraph(
         "Il processo diagnostico può essere modellato come un problema di <b>inferenza logica</b>. "
         "Data una base di conoscenza che associa malattie a sintomi, e dato un insieme di sintomi "
-        "osservati nel paziente, il sistema deve inferire le diagnosi più probabili. "
+        "osservati nel paziente, il sistema deve enumerare le diagnosi candidate e ordinarle. "
         "Formalmente, per ogni malattia M nella KB:", s['BodyJ']))
 
     story.append(code_block(
-        "diagnosi(M, Sintomi_Paziente, CF) :-\n"
-        "    sintomi_malattia(M, Sintomi_M),\n"
-        "    intersezione(Sintomi_Paziente, Sintomi_M, Comuni),\n"
-        "    CF = |Comuni| / |Sintomi_M| × 100,\n"
-        "    CF > 0.", s))
+        "ICS(M) = round( |Sintomi_Paziente ∩ Sintomi_M| / |Sintomi_M| × 100 )", s))
 
     story.append(Paragraph(
-        "Dove CF (Certainty Factor) rappresenta la percentuale di sintomi della malattia M "
-        "che sono stati osservati nel paziente. Questo approccio permette di generare diagnosi "
-        "multiple con diversi gradi di certezza.", s['BodyJ']))
+        "L'<b>Indice di Copertura Sintomatica</b> (ICS) misura quale frazione dei sintomi tipici "
+        "di M è presente nel quadro del paziente. È un indice di ranking, non una probabilità: "
+        "le diagnosi a ICS più alto sono quelle che il sistema propone per prime, ma la decisione "
+        "clinica finale resta del medico.", s['BodyJ']))
 
     story.append(Paragraph("2.3 Patologie Coperte", s['SectionH2']))
     story.append(Paragraph(
         "MedExpert AI copre un ampio spettro di patologie comuni, organizzate in categorie mediche. "
-        "Di seguito l'elenco completo delle 16 malattie presenti nella Knowledge Base:", s['BodyJ']))
+        "Di seguito l'elenco completo delle <b>17 malattie</b> presenti nella Knowledge Base, "
+        "organizzate in <b>10 categorie</b>:", s['BodyJ']))
 
     disease_headers = ['#', 'Malattia', 'Categoria', 'N° Sintomi']
     disease_rows = [
-        ['1', 'Influenza', 'Infettiva', '6'],
-        ['2', 'COVID-19', 'Infettiva', '8'],
-        ['3', 'Polmonite', 'Respiratoria', '7'],
-        ['4', 'Bronchite', 'Respiratoria', '5'],
-        ['5', 'Asma', 'Respiratoria', '5'],
-        ['6', 'Gastrite', 'Gastrointestinale', '6'],
-        ['7', 'Appendicite', 'Gastrointestinale', '5'],
-        ['8', 'Ipertensione', 'Cardiovascolare', '6'],
-        ['9', 'Infarto Miocardico', 'Cardiovascolare', '6'],
-        ['10', 'Diabete Tipo 2', 'Metabolica', '7'],
-        ['11', 'Emicrania', 'Neurologica', '5'],
-        ['12', 'Meningite', 'Neurologica', '7'],
-        ['13', 'Anemia', 'Ematologica', '6'],
-        ['14', 'Dermatite', 'Dermatologica', '5'],
-        ['15', 'Cistite', 'Urologica', '5'],
-        ['16', 'Artrite Reumatoide', 'Reumatologica', '6'],
+        ['1',  'Influenza',                'Respiratoria',      '7'],
+        ['2',  'COVID-19',                 'Respiratoria',      '8'],
+        ['3',  'Bronchite',                'Respiratoria',      '7'],
+        ['4',  'Polmonite',                'Respiratoria',      '8'],
+        ['5',  'Gastrite',                 'Gastrointestinale', '6'],
+        ['6',  'Appendicite',              'Gastrointestinale', '6'],
+        ['7',  'Reflusso gastroesofageo',  'Gastrointestinale', '6'],
+        ['8',  'Emicrania',                'Neurologica',       '6'],
+        ['9',  'Meningite',                'Neurologica',       '8'],
+        ['10', 'Ipertensione',             'Cardiovascolare',   '6'],
+        ['11', 'Tachicardia',              'Cardiovascolare',   '6'],
+        ['12', 'Anemia',                   'Ematologica',       '7'],
+        ['13', 'Diabete di tipo 2',        'Metabolica',        '6'],
+        ['14', 'Ipotiroidismo',            'Endocrina',         '7'],
+        ['15', 'Cistite',                  'Urologica',         '6'],
+        ['16', 'Allergia stagionale',      'Immunitaria',       '6'],
+        ['17', 'Depressione',              'Psichiatrica',      '7'],
     ]
     story.append(make_table(disease_headers, disease_rows,
                             [1*cm, 5*cm, 4.5*cm, 2.5*cm]))
     story.append(Paragraph("Tabella 2 — Elenco completo delle patologie nella Knowledge Base.",
                            s['Caption']))
+
+    story.append(Paragraph("2.4 Inquadramento nel Corso", s['SectionH2']))
+    story.append(Paragraph(
+        "Il progetto si colloca nei <b>capitoli 7-10</b> del corso: rappresentazione della "
+        "conoscenza in una base di conoscenza (KB), motore inferenziale, regole di "
+        "produzione/inferenza e linguaggio Prolog basato su clausole di Horn. Il dominio medico "
+        "è particolarmente naturale per questo paradigma: la conoscenza diagnostica può essere "
+        "fornita da un esperto di dominio (il medico) sotto forma di regole tipo «se sono "
+        "presenti i sintomi s₁, …, s_n allora la malattia M è una diagnosi candidata», che si "
+        "traducono direttamente in fatti e regole Prolog.", s['BodyJ']))
+    story.append(Paragraph(
+        "Il libro Gallucci ricorda esplicitamente, nel capitolo 10, che <i>«un medico... può "
+        "fornire tutto ciò che ha appreso dalla sua esperienza: il ruolo dell'esperto è dunque "
+        "cruciale»</i>: MedExpert AI segue letteralmente questa indicazione. Il motore "
+        "inferenziale di SWI-Prolog si occupa poi di attivare le regole della KB in modo "
+        "goal-driven (equivalente al backward chaining descritto nel cap. 9.4) per rispondere "
+        "alle query dell'utente, e la GUI Python svolge il ruolo di interfaccia tra l'utente "
+        "non-tecnico e il motore logico.", s['BodyJ']))
     story.append(hr())
 
 
@@ -596,7 +616,7 @@ def build_section_3(story, s):
         "                       │ subprocess (stdin/stdout)\n"
         "┌──────────────────────▼──────────────────────────┐\n"
         "│         MOTORE INFERENZIALE (SWI-Prolog)        │\n"
-        "│  backward chaining · certainty factors · sort   │\n"
+        "│   backward chaining · ICS · findall · sort      │\n"
         "└──────────────────────┬──────────────────────────┘\n"
         "                       │ consult/1\n"
         "┌──────────────────────▼──────────────────────────┐\n"
@@ -622,12 +642,13 @@ def build_section_3(story, s):
         "chaining sulla KB e restituisce le diagnosi ordinate; (5) Python analizza l'output e "
         "aggiorna la GUI con i risultati.", s['BodyJ']))
 
+    story.append(PageBreak())
     story.append(Paragraph("3.3 Struttura dei File", s['SectionH2']))
 
     file_headers = ['File', 'Linguaggio', 'Ruolo']
     file_rows = [
         ['diagnosi_medica.pl', 'Prolog', 'Knowledge Base + Regole inferenziali + Test'],
-        ['gui_diagnosi.py', 'Python', 'Interfaccia grafica Tkinter'],
+        ['interfaccia.py', 'Python', 'Interfaccia grafica Tkinter + ponte verso swipl'],
         ['genera_pdf.py', 'Python', 'Generatore documentazione PDF'],
         ['README.md', 'Markdown', 'Documentazione del progetto'],
     ]
@@ -643,21 +664,25 @@ def build_section_4(story, s):
 
     story.append(Paragraph("4.1 Struttura dei Fatti", s['SectionH2']))
     story.append(Paragraph(
-        "La Knowledge Base è organizzata utilizzando quattro predicati principali, ciascuno dei "
-        "quali cattura un aspetto diverso della conoscenza medica:", s['BodyJ']))
+        "La Knowledge Base è organizzata utilizzando quattro predicati di fatti più un predicato "
+        "derivato, ciascuno dei quali cattura un aspetto diverso della conoscenza medica:", s['BodyJ']))
 
     pred_headers = ['Predicato', 'Arità', 'Descrizione', 'Esempio']
     pred_rows = [
-        ['sintomo/2', '2', 'Associa malattia a lista sintomi',
-         "sintomo(influenza, [febbre, tosse, ...])"],
-        ['descrizione/2', '2', 'Descrizione testuale della malattia',
-         "descrizione(influenza, 'Infezione virale...')"],
-        ['trattamento/2', '2', 'Trattamento raccomandato',
-         "trattamento(influenza, 'Riposo...')"],
-        ['categoria/2', '2', 'Categoria medica della malattia',
-         "categoria(influenza, infettiva)"],
+        ['sintomo/2', '2',
+         "Associa una malattia a un singolo sintomo. Si dichiarano più fatti per la stessa malattia.",
+         "sintomo(influenza, febbre_alta)."],
+        ['categoria/2', '2', 'Categoria medica della malattia.',
+         "categoria(influenza, respiratoria)."],
+        ['descrizione/2', '2', 'Descrizione testuale della malattia.',
+         "descrizione(influenza, '...')."],
+        ['trattamento/2', '2', 'Trattamento raccomandato.',
+         "trattamento(influenza, '...')."],
+        ['malattia/1', '1',
+         "Predicato derivato: vero se la malattia esiste nella KB.",
+         "malattia(X) :- categoria(X, _)."],
     ]
-    story.append(make_table(pred_headers, pred_rows, [2.8*cm, 1.5*cm, 4.5*cm, 7.2*cm]))
+    story.append(make_table(pred_headers, pred_rows, [2.4*cm, 1.2*cm, 5.4*cm, 7*cm]))
     story.append(Paragraph("Tabella 4 — Predicati della Knowledge Base.", s['Caption']))
 
     story.append(Paragraph("4.2 Esempi di Fatti nella KB", s['SectionH2']))
@@ -666,51 +691,29 @@ def build_section_4(story, s):
         "Knowledge Base Prolog:", s['BodyJ']))
 
     kb_code = (
-        "%% ═══════════════════════════════════════════════\n"
-        "%% FATTI: Sintomi per malattia\n"
-        "%% ═══════════════════════════════════════════════\n"
+        "%% Sintomi: un fatto per ogni coppia (malattia, sintomo).\n"
+        "sintomo(influenza, febbre_alta).\n"
+        "sintomo(influenza, mal_di_testa).\n"
+        "sintomo(influenza, dolori_muscolari).\n"
+        "sintomo(influenza, tosse_secca).\n"
+        "sintomo(influenza, mal_di_gola).\n"
+        "sintomo(influenza, stanchezza).\n"
+        "sintomo(influenza, naso_chiuso).\n"
         "\n"
-        "sintomo(influenza, [febbre, tosse, mal_di_gola,\n"
-        "                    dolori_muscolari, mal_di_testa,\n"
-        "                    affaticamento]).\n"
+        "sintomo(covid19, febbre_alta).\n"
+        "sintomo(covid19, tosse_secca).\n"
+        "sintomo(covid19, difficolta_respiratorie).\n"
+        "sintomo(covid19, perdita_gusto_olfatto).\n"
+        "sintomo(covid19, stanchezza).\n"
+        "%% ...\n"
         "\n"
-        "sintomo(covid19, [febbre, tosse_secca, affaticamento,\n"
-        "                  perdita_gusto, perdita_olfatto,\n"
-        "                  difficolta_respiratorie,\n"
-        "                  dolori_muscolari, mal_di_testa]).\n"
-        "\n"
-        "sintomo(polmonite, [febbre_alta, tosse_produttiva,\n"
-        "                    difficolta_respiratorie,\n"
-        "                    dolore_toracico, brividi,\n"
-        "                    sudorazione, affaticamento]).\n"
-        "\n"
-        "sintomo(diabete_tipo2, [sete_eccessiva, minzione_frequente,\n"
-        "                       fame_eccessiva, perdita_peso,\n"
-        "                       affaticamento, visione_offuscata,\n"
-        "                       guarigione_lenta]).\n"
-        "\n"
-        "%% ═══════════════════════════════════════════════\n"
-        "%% FATTI: Categorie\n"
-        "%% ═══════════════════════════════════════════════\n"
-        "\n"
-        "categoria(influenza, infettiva).\n"
-        "categoria(covid19, infettiva).\n"
-        "categoria(polmonite, respiratoria).\n"
+        "%% Categorie.\n"
+        "categoria(influenza, respiratoria).\n"
+        "categoria(covid19, respiratoria).\n"
         "categoria(diabete_tipo2, metabolica).\n"
         "\n"
-        "%% ═══════════════════════════════════════════════\n"
-        "%% FATTI: Descrizioni\n"
-        "%% ═══════════════════════════════════════════════\n"
-        "\n"
-        "descrizione(influenza,\n"
-        "  'Infezione virale acuta dell\\'apparato respiratorio\n"
-        "   causata dai virus influenzali. Si manifesta con\n"
-        "   febbre, dolori muscolari e sintomi respiratori.').\n"
-        "\n"
-        "descrizione(covid19,\n"
-        "  'Malattia infettiva causata dal virus SARS-CoV-2.\n"
-        "   Caratterizzata da sintomi respiratori e perdita\n"
-        "   di gusto/olfatto.')."
+        "%% Predicato derivato.\n"
+        "malattia(X) :- categoria(X, _)."
     )
     story.append(code_block(kb_code, s))
     story.append(Paragraph("Listato 1 — Estratto della Knowledge Base in Prolog.", s['Caption']))
@@ -718,6 +721,14 @@ def build_section_4(story, s):
     story.append(Paragraph("4.3 Scelte Progettuali della KB", s['SectionH2']))
     story.append(Paragraph(
         "La progettazione della Knowledge Base ha seguito alcuni principi fondamentali:", s['BodyJ']))
+    story.append(Paragraph(
+        "• <b>Fatti atomici anziché liste</b> — La scelta di codificare i sintomi come fatti separati "
+        "(<font face='Courier'>sintomo(influenza, febbre_alta).</font>) riflette lo stile dichiarativo "
+        "di Prolog: ogni fatto è un'unità minima di conoscenza, indipendentemente assertabile, e il "
+        "motore di inferenza accede all'insieme dei sintomi di una malattia tramite <i>findall/3</i>. "
+        "Questa rappresentazione facilita l'estensione della KB (aggiungere un nuovo sintomo a una "
+        "malattia significa aggiungere una sola riga) e si presta naturalmente all'uso di predicati "
+        "derivati come <i>malattia/1</i>.", s['BodyBullet']))
     story.append(Paragraph(
         "• <b>Modularità</b> — Ogni aspetto della conoscenza (sintomi, descrizioni, trattamenti, "
         "categorie) è codificato in predicati separati, facilitando l'aggiornamento e l'estensione.", s['BodyBullet']))
@@ -729,9 +740,6 @@ def build_section_4(story, s):
         "• <b>Completezza</b> — Per ogni malattia sono forniti tutti e quattro i tipi di "
         "informazione (sintomi, descrizione, trattamento, categoria), garantendo che il sistema "
         "possa sempre fornire una risposta completa.", s['BodyBullet']))
-    story.append(Paragraph(
-        "• <b>Estensibilità</b> — Aggiungere una nuova malattia richiede semplicemente l'inserimento "
-        "di quattro nuovi fatti nella KB, senza modificare il motore inferenziale.", s['BodyBullet']))
 
     story.append(hr())
 
@@ -741,52 +749,96 @@ def build_section_5(story, s):
     story.append(Paragraph("5. Regole di Inferenza", s['SectionH1']))
     story.append(Spacer(1, 0.25 * cm))
 
-    story.append(Paragraph("5.1 Diagnosi con Fattore di Certezza — diagnosi/3", s['SectionH2']))
     story.append(Paragraph(
-        "La regola principale del sistema esperto è <b>diagnosi/3</b>, che implementa il backward "
-        "chaining con calcolo del fattore di certezza. Per ogni malattia nella KB, la regola "
-        "calcola quanti dei sintomi del paziente corrispondono ai sintomi della malattia e ne "
-        "deriva un fattore di certezza percentuale.", s['BodyJ']))
+        "Il motore inferenziale di Prolog risolve i goal in modo <b>goal-driven</b> "
+        "(Gallucci, sez. 9.4.2 e 10.3): a partire dal goal viene cercato un fatto o una regola "
+        "la cui testa unifica con esso, e si tenta ricorsivamente di dimostrare le precondizioni "
+        "nel body. Questo schema corrisponde al <i>backward chaining</i> della logica del primo "
+        "ordine. Prolog è, citando il libro, <i>«pensato da principio per essere goal-driven "
+        "come BC»</i>.", s['BodyJ']))
+    story.append(Paragraph(
+        "In questo progetto la regola principale <i>diagnosi/3</i> sfrutta questo schema nel modo "
+        "seguente: dato il goal <i>diagnosi(SintomiPaziente, Malattia, Certezza)</i>, l'interprete "
+        "tenta di unificare <i>Malattia</i> con una malattia legittima della KB (tramite il "
+        "predicato derivato <i>malattia/1</i>), raccoglie i suoi sintomi con <i>findall/3</i> e "
+        "calcola l'ICS. La \"catena\" inferenziale qui non è multilivello — non ci sono regole di "
+        "produzione che generano fatti intermedi inseriti nella KB — ma è la catena standard di "
+        "unificazione e risoluzione interna a Prolog.", s['BodyJ']))
+
+    story.append(Paragraph("5.1 Indice di Copertura Sintomatica — diagnosi/3", s['SectionH2']))
+    story.append(Paragraph(
+        "La regola principale del sistema esperto è <b>diagnosi/3</b>, che sfrutta lo schema "
+        "goal-driven di Prolog (backward chaining) per calcolare, per ogni malattia della KB, "
+        "un indice di copertura sintomatica a partire dai sintomi forniti dall'utente.", s['BodyJ']))
 
     diag_code = (
-        "%% diagnosi(+SintomiPaziente, -Malattia, -Certezza)\n"
-        "%% Calcola la diagnosi con fattore di certezza\n"
+        "%% diagnosi(+SintomiPaziente, ?Malattia, -Certezza)\n"
+        "%% Calcola l'indice di copertura sintomatica per una malattia.\n"
         "diagnosi(SintomiPaziente, Malattia, Certezza) :-\n"
-        "    sintomo(Malattia, SintomiMalattia),\n"
-        "    intersection(SintomiPaziente, SintomiMalattia, Comuni),\n"
-        "    length(Comuni, NumComuni),\n"
-        "    NumComuni > 0,\n"
-        "    length(SintomiMalattia, TotSintomi),\n"
-        "    Certezza is (NumComuni / TotSintomi) * 100."
+        "    malattia(Malattia),\n"
+        "    sort(SintomiPaziente, SintomiUnici),\n"
+        "    findall(S, sintomo(Malattia, S), TuttiSintomi),\n"
+        "    intersection(SintomiUnici, TuttiSintomi, SintomiComuni),\n"
+        "    length(SintomiComuni, NComuni),\n"
+        "    NComuni > 0,\n"
+        "    length(TuttiSintomi, NTotali),\n"
+        "    Certezza is round((NComuni / NTotali) * 100)."
     )
     story.append(code_block(diag_code, s))
-    story.append(Paragraph("Listato 2 — Regola diagnosi/3 con calcolo del fattore di certezza.",
+    story.append(Paragraph("Listato 2 — Regola diagnosi/3 estratta da diagnosi_medica.pl.",
                            s['Caption']))
 
-    story.append(Paragraph("5.2 Formula del Fattore di Certezza", s['SectionH2']))
     story.append(Paragraph(
-        "Il <b>Certainty Factor</b> (CF) è calcolato come rapporto tra il numero di sintomi "
-        "corrispondenti e il numero totale di sintomi della malattia, moltiplicato per 100:", s['BodyJ']))
+        "Alcuni dettagli implementativi che è utile commentare:", s['BodyJ']))
+    story.append(Paragraph(
+        "• <i>sort/2</i> rimuove eventuali sintomi duplicati dall'input dell'utente prima del "
+        "confronto, rendendo la regola idempotente rispetto alle ripetizioni.", s['BodyBullet']))
+    story.append(Paragraph(
+        "• <i>findall/3</i> raccoglie <i>tutti</i> i sintomi associati alla malattia interrogando "
+        "ripetutamente <i>sintomo/2</i>, restituendo una lista. È il punto in cui si materializza "
+        "l'insieme dei sintomi a partire dai fatti atomici della KB.", s['BodyBullet']))
+    story.append(Paragraph(
+        "• Il risultato è <b>arrotondato all'intero</b> (<i>round</i>) anziché lasciato in decimali, "
+        "per coerenza con i valori mostrati nella GUI.", s['BodyBullet']))
+    story.append(Paragraph(
+        "• La clausola <i>NComuni &gt; 0</i> esclude le malattie senza alcun sintomo in comune con "
+        "il paziente, evitando di mostrare diagnosi totalmente irrilevanti.", s['BodyBullet']))
+
+    story.append(Paragraph("5.2 Indice di Copertura Sintomatica (ICS)", s['SectionH2']))
+    story.append(Paragraph(
+        "Per ogni malattia M nella Knowledge Base, il sistema calcola un <b>Indice di Copertura "
+        "Sintomatica</b> definito come:", s['BodyJ']))
 
     formula_text = (
-        "                    |Sintomi_Paziente ∩ Sintomi_Malattia|\n"
-        "    CF(M) = ──────────────────────────────────────────── × 100\n"
-        "                         |Sintomi_Malattia|"
+        "                |S_paziente ∩ S_M|\n"
+        "    ICS(M) = round( ───────────────── × 100 )\n"
+        "                     |S_M|"
     )
     story.append(code_block(formula_text, s))
     story.append(Paragraph(
-        "Ad esempio, se una malattia ha 6 sintomi e il paziente ne presenta 4, il fattore di "
-        "certezza sarà CF = (4/6) × 100 ≈ 66.7%. Questo approccio è ispirato ai fattori di "
-        "certezza originariamente introdotti in MYCIN.", s['BodyJ']))
+        "dove S_paziente è l'insieme dei sintomi selezionati dall'utente, S_M è l'insieme dei "
+        "sintomi associati alla malattia M nella KB, e l'arrotondamento è all'intero più vicino.",
+        s['BodyJ']))
+    story.append(Paragraph(
+        "L'ICS misura <b>in che proporzione i sintomi tipici di M sono presenti nel paziente</b>. "
+        "In termini statistici è una grandezza affine al <i>recall</i> della malattia M rispetto "
+        "ai sintomi: non penalizza i sintomi del paziente che non sono associati a M. Per questo "
+        "motivo l'ICS va inteso come <b>strumento di ranking diagnostico</b>, non come probabilità "
+        "a posteriori di M dato il quadro sintomatologico. Il ranking è prodotto da "
+        "<i>diagnosi_ordinate/2</i>, che aggrega le diagnosi e le ordina per ICS decrescente.",
+        s['BodyJ']))
+    story.append(Paragraph(
+        "<b>Esempio.</b> Se l'influenza ha 7 sintomi nella KB e il paziente ne presenta 3 "
+        "corrispondenti, ICS(influenza) = round(3/7 × 100) = 43%.", s['BodyJ']))
 
     story.append(Paragraph("5.3 Diagnosi Ordinate — diagnosi_ordinate/2", s['SectionH2']))
     story.append(Paragraph(
         "La regola <b>diagnosi_ordinate/2</b> raccoglie tutte le diagnosi possibili e le ordina "
-        "per fattore di certezza decrescente, presentando le diagnosi più probabili per prime:", s['BodyJ']))
+        "per ICS decrescente, presentando le diagnosi a copertura più alta per prime:", s['BodyJ']))
 
     sort_code = (
         "%% diagnosi_ordinate(+Sintomi, -DiagnosiOrdinate)\n"
-        "%% Raccoglie e ordina le diagnosi per certezza\n"
+        "%% Raccoglie le diagnosi e le ordina per ICS decrescente.\n"
         "diagnosi_ordinate(Sintomi, DiagnosiOrdinate) :-\n"
         "    findall(\n"
         "        certezza(CF, Malattia),\n"
@@ -796,53 +848,67 @@ def build_section_5(story, s):
         "    sort(0, @>=, Diagnosi, DiagnosiOrdinate)."
     )
     story.append(code_block(sort_code, s))
-    story.append(Paragraph("Listato 3 — Ordinamento delle diagnosi per certezza.", s['Caption']))
+    story.append(Paragraph(
+        "Listato 3 — Ordinamento delle diagnosi (il termine <i>certezza/2</i> e la variabile "
+        "<i>CF</i> sono identificatori interni al codice Prolog).", s['Caption']))
 
     story.append(Paragraph("5.4 Facility di Spiegazione — spiega_diagnosi/4", s['SectionH2']))
     story.append(Paragraph(
         "Una caratteristica fondamentale dei sistemi esperti è la capacità di <b>spiegare</b> il "
-        "ragionamento che ha portato a una conclusione. La regola <b>spiega_diagnosi/4</b> genera "
-        "una spiegazione dettagliata per ogni diagnosi:", s['BodyJ']))
+        "ragionamento che ha portato a una conclusione. La regola <b>spiega_diagnosi/4</b> divide "
+        "i sintomi della malattia in due liste: quelli effettivamente <i>trovati</i> nel paziente "
+        "e quelli <i>mancanti</i>.", s['BodyJ']))
 
     explain_code = (
-        "%% spiega_diagnosi(+Sintomi, +Malattia, -Comuni, -Certezza)\n"
-        "%% Genera la spiegazione della diagnosi\n"
-        "spiega_diagnosi(SintomiPaziente, Malattia, SintomiComuni,\n"
-        "                Certezza) :-\n"
-        "    sintomo(Malattia, SintomiMalattia),\n"
-        "    intersection(SintomiPaziente, SintomiMalattia,\n"
-        "                 SintomiComuni),\n"
-        "    length(SintomiComuni, NumComuni),\n"
-        "    NumComuni > 0,\n"
-        "    length(SintomiMalattia, TotSintomi),\n"
-        "    Certezza is (NumComuni / TotSintomi) * 100."
+        "%% spiega_diagnosi(+SintomiPaziente, +Malattia, -Trovati, -Mancanti)\n"
+        "%% Divide i sintomi della malattia in trovati nel paziente e mancanti.\n"
+        "spiega_diagnosi(SintomiPaziente, Malattia, Trovati, Mancanti) :-\n"
+        "    sort(SintomiPaziente, SintomiUnici),\n"
+        "    findall(S, sintomo(Malattia, S), Tutti),\n"
+        "    intersection(SintomiUnici, Tutti, Trovati),\n"
+        "    subtract(Tutti, Trovati, Mancanti)."
     )
     story.append(code_block(explain_code, s))
-    story.append(Paragraph("Listato 4 — Regola per la spiegazione delle diagnosi.", s['Caption']))
+    story.append(Paragraph("Listato 4 — Regola spiega_diagnosi/4 estratta da diagnosi_medica.pl.",
+                           s['Caption']))
+
+    story.append(Paragraph(
+        "La facility di spiegazione restituisce due liste: i <b>sintomi trovati</b>, cioè quelli "
+        "del paziente che sono effettivamente associati alla malattia M, e i <b>sintomi mancanti</b>, "
+        "cioè quelli associati a M che il paziente non ha riportato. Questa rappresentazione è "
+        "quella consumata direttamente dalla GUI per il pannello \"Dettagli\", che mostra "
+        "esplicitamente sia il match sia ciò che resta inspiegato — un elemento di trasparenza "
+        "diagnostica.", s['BodyJ']))
 
     story.append(Paragraph("5.5 Esempio Passo-Passo di Inferenza", s['SectionH2']))
     story.append(Paragraph(
-        "Consideriamo un paziente che presenta i sintomi: <b>febbre</b>, <b>tosse</b>, "
-        "<b>mal_di_gola</b> e <b>dolori_muscolari</b>. Il sistema esegue il seguente "
-        "ragionamento:", s['BodyJ']))
+        "Si consideri un paziente che presenta i seguenti tre sintomi: <b>febbre_alta</b>, "
+        "<b>tosse_secca</b>, <b>stanchezza</b>. Il sistema esegue la regola <i>diagnosi/3</i> "
+        "per ciascuna malattia della KB e produce l'output ordinato che segue (valori ottenuti "
+        "eseguendo davvero la query <i>diagnosi_ordinate/2</i> sul codice).", s['BodyJ']))
 
-    step_headers = ['Passo', 'Malattia', 'Sintomi Match', 'Totale', 'CF']
+    step_headers = ['Malattia', 'N° sintomi totali', 'Sintomi corrispondenti', 'ICS']
     step_rows = [
-        ['1', 'Influenza', '4 (febbre, tosse, mal_di_gola, dolori_muscolari)', '6', '66.7%'],
-        ['2', 'COVID-19', '3 (febbre, dolori_muscolari, mal_di_testa*)', '8', '37.5%'],
-        ['3', 'Polmonite', '1 (febbre → febbre_alta ≠ febbre)', '7', '0%**'],
-        ['4', 'Bronchite', '1 (tosse)', '5', '20.0%'],
+        ['Influenza',  '7', '3 (febbre_alta, tosse_secca, stanchezza)', '43%'],
+        ['COVID-19',   '8', '3 (febbre_alta, tosse_secca, stanchezza)', '38%'],
+        ['Polmonite',  '8', '2 (febbre_alta, stanchezza)', '25%'],
+        ['Meningite',  '8', '2 (febbre_alta, stanchezza)', '25%'],
+        ['Tachicardia',          '6', '1 (stanchezza)', '17%'],
+        ['Reflusso gastroesofageo','6','1 (tosse_secca)', '17%'],
+        ['Bronchite',  '7', '1 (stanchezza)', '14%'],
+        ['…',          '…', '…', '…'],
     ]
-    story.append(make_table(step_headers, step_rows, [1.5*cm, 3*cm, 7*cm, 1.8*cm, 2.2*cm]))
+    story.append(make_table(step_headers, step_rows, [3.8*cm, 2.6*cm, 7.6*cm, 1.6*cm]))
     story.append(Paragraph(
-        "Tabella 5 — Esempio di inferenza passo-passo. "
-        "(*) Se mal_di_testa non è presente, il match è 2 su 8 = 25%. "
-        "(**) Polmonite usa 'febbre_alta' come sintomo distinto da 'febbre'.", s['Caption']))
+        "Tabella 5 — Output reale di diagnosi_ordinate/2 per il quadro sintomatologico "
+        "{febbre_alta, tosse_secca, stanchezza}. Sono mostrate le 7 diagnosi a copertura più alta; "
+        "il sistema restituisce in totale 14 candidate.", s['Caption']))
 
     story.append(Paragraph(
-        "Il risultato finale presentato all'utente sarà: <b>Influenza (66.7%)</b> come diagnosi "
-        "principale, seguita da COVID-19 e Bronchite come diagnosi secondarie. Il sistema fornisce "
-        "anche la spiegazione dettagliata con i sintomi corrispondenti per ciascuna diagnosi.", s['BodyJ']))
+        "Il risultato finale presentato all'utente è <b>Influenza (43%)</b> come diagnosi più "
+        "probabile, seguita da COVID-19 e dalle altre diagnosi a copertura inferiore. Il sistema "
+        "fornisce inoltre, per ogni diagnosi cliccata, l'elenco dei sintomi <i>trovati</i> e "
+        "<i>mancanti</i> tramite la facility di spiegazione (<i>spiega_diagnosi/4</i>).", s['BodyJ']))
 
     story.append(hr())
 
@@ -925,7 +991,7 @@ def build_section_6(story, s):
     story.append(Paragraph(
         "Il flusso di interazione dell'utente con il sistema segue un percorso lineare e intuitivo:", s['BodyJ']))
     story.append(Paragraph(
-        "<b>1.</b> L'utente avvia l'applicazione eseguendo <font face='Courier'>python3 gui_diagnosi.py</font>.", s['BodyBullet']))
+        "<b>1.</b> L'utente avvia l'applicazione eseguendo <font face='Courier'>python3 interfaccia.py</font>.", s['BodyBullet']))
     story.append(Paragraph(
         "<b>2.</b> Nel pannello sinistro, seleziona i sintomi presenti spuntando le checkbox corrispondenti.", s['BodyBullet']))
     story.append(Paragraph(
@@ -941,23 +1007,46 @@ def build_section_6(story, s):
 
     story.append(Paragraph("6.4 Architettura del Codice Python", s['SectionH2']))
     story.append(Paragraph(
-        "Il codice Python è organizzato in una classe principale <b>MedExpertGUI</b> che gestisce "
-        "l'intera interfaccia. I metodi principali sono:", s['BodyJ']))
+        "Il codice in <font face='Courier'>interfaccia.py</font> è organizzato attorno a due "
+        "classi: <b>MedExpertApp</b>, che costruisce la finestra Tkinter e ne gestisce eventi e "
+        "stato, e <b>PrologEngine</b>, che fa da ponte verso <font face='Courier'>swipl</font>. "
+        "I metodi principali di <b>MedExpertApp</b> sono:", s['BodyJ']))
 
     method_headers = ['Metodo', 'Descrizione']
     method_rows = [
-        ['__init__()', 'Inizializzazione della finestra e configurazione del tema'],
-        ['create_widgets()', 'Creazione di tutti i widget dell\'interfaccia'],
-        ['create_symptom_panel()', 'Costruzione del pannello di selezione sintomi'],
-        ['create_results_panel()', 'Costruzione del pannello risultati con card'],
-        ['create_detail_panel()', 'Costruzione del pannello dettagli malattia'],
-        ['run_diagnosis()', 'Invocazione di Prolog e parsing dei risultati'],
-        ['show_diagnosis_card()', 'Rendering di una singola card diagnosi'],
-        ['show_detail()', 'Visualizzazione dettagli della malattia selezionata'],
-        ['reset()', 'Reset completo dell\'interfaccia'],
+        ['__init__()',
+         "Inizializza finestra, font, palette, stato dell'app e istanzia PrologEngine."],
+        ['_build_header() / _build_body() /\n_build_footer()',
+         'Costruzione dei tre blocchi principali della UI.'],
+        ['_build_left_panel()',
+         'Pannello sinistro con le checkbox dei sintomi raggruppate per categoria.'],
+        ['_build_center_panel()',
+         'Area centrale che ospita le card delle diagnosi.'],
+        ['_build_right_panel()',
+         'Pannello destro dei dettagli della malattia selezionata.'],
+        ['_on_analyze()',
+         'Lancia la diagnosi in un thread separato per non bloccare la UI.'],
+        ['_on_analysis_done(results)',
+         'Callback che aggiorna la UI con i risultati.'],
+        ['_on_card_click(malattia)',
+         'Click su una card: richiede a Prolog la spiegazione e popola il pannello destro.'],
+        ['_on_reset()',
+         'Resetta checkbox e pannelli.'],
+        ['_toggle_fullscreen() /\n_exit_fullscreen()',
+         'Gestione fullscreen (F11 / Esc).'],
     ]
-    story.append(make_table(method_headers, method_rows, [4*cm, 12*cm]))
-    story.append(Paragraph("Tabella 7 — Metodi principali della classe MedExpertGUI.", s['Caption']))
+    story.append(make_table(method_headers, method_rows, [5.5*cm, 11*cm]))
+    story.append(Paragraph("Tabella 7 — Metodi principali di MedExpertApp.", s['Caption']))
+
+    story.append(Spacer(1, 0.2 * cm))
+    aux_headers = ['Classe', 'Descrizione']
+    aux_rows = [
+        ['PrologEngine',
+         "Ponte verso swipl: avvia il processo via subprocess, esegue query_diagnosi e "
+         "query_spiega sul file diagnosi_medica.pl, fa il parsing dell'output testuale."],
+    ]
+    story.append(make_table(aux_headers, aux_rows, [3.5*cm, 13*cm]))
+    story.append(Paragraph("Tabella 7b — Classe ausiliaria di interfaccia.py.", s['Caption']))
 
     story.append(hr())
 
@@ -971,98 +1060,88 @@ def build_section_7(story, s):
     story.append(Paragraph("7.1 Suite di Test", s['SectionH2']))
     story.append(Paragraph(
         "MedExpert AI include una suite di test automatizzati scritta direttamente in Prolog, "
-        "integrata nel file della Knowledge Base. I test verificano la correttezza delle diagnosi "
-        "prodotte dal motore inferenziale per diverse combinazioni di sintomi. Ogni test case "
-        "specifica un insieme di sintomi di input, la diagnosi attesa e il fattore di certezza "
-        "minimo richiesto.", s['BodyJ']))
+        "integrata nel file della Knowledge Base. I test verificano la correttezza del motore "
+        "inferenziale per diverse combinazioni di sintomi e per i casi limite (input duplicato, "
+        "sintomi inesistenti, ordinamento dei risultati).", s['BodyJ']))
 
     story.append(Paragraph(
-        "Per eseguire la suite di test, è sufficiente utilizzare il seguente comando:", s['BodyJ']))
+        "Per eseguire la suite di test si usa il seguente comando:", s['BodyJ']))
 
     story.append(code_block(
         "swipl -g \"test_diagnosi, halt\" diagnosi_medica.pl", s))
 
     story.append(Paragraph("7.2 Casi di Test", s['SectionH2']))
     story.append(Paragraph(
-        "Di seguito è riportata la tabella dei principali casi di test con i risultati ottenuti:", s['BodyJ']))
+        "Di seguito i 7 test reali presenti nella KB con lo scopo di ciascuno e l'esito atteso. "
+        "Tutti i valori numerici sono stati verificati eseguendo la suite sul codice reale.",
+        s['BodyJ']))
 
-    test_headers = ['#', 'Sintomi Input', 'Diagnosi Attesa', 'CF Atteso', 'Risultato', 'Esito']
+    test_headers = ['#', 'Nome', 'Scopo', 'Esito atteso']
     test_rows = [
-        ['1',
-         'febbre, tosse, mal_di_gola,\ndolori_muscolari, mal_di_testa',
-         'Influenza', '83.3%',
-         'Influenza (83.3%)', '✓ PASS'],
-        ['2',
-         'febbre, tosse_secca, perdita_gusto,\nperdita_olfatto, affaticamento',
-         'COVID-19', '62.5%',
-         'COVID-19 (62.5%)', '✓ PASS'],
-        ['3',
-         'febbre_alta, tosse_produttiva,\ndifficolta_respiratorie,\ndolore_toracico',
-         'Polmonite', '57.1%',
-         'Polmonite (57.1%)', '✓ PASS'],
-        ['4',
-         'dolore_addominale, nausea,\nvomito, bruciore_stomaco',
-         'Gastrite', '66.7%',
-         'Gastrite (66.7%)', '✓ PASS'],
-        ['5',
-         'sete_eccessiva, minzione_frequente,\nfame_eccessiva, perdita_peso,\naffaticamento',
-         'Diabete Tipo 2', '71.4%',
-         'Diabete T2 (71.4%)', '✓ PASS'],
-        ['6',
-         'mal_di_testa_intenso, nausea,\nsensibilita_luce, sensibilita_rumore',
-         'Emicrania', '80.0%',
-         'Emicrania (80.0%)', '✓ PASS'],
-        ['7',
-         'febbre_alta, rigidita_nucale,\nmal_di_testa_intenso, nausea,\nvomito',
-         'Meningite', '71.4%',
-         'Meningite (71.4%)', '✓ PASS'],
+        ['1', 'Corrispondenza esatta',
+         "Tutti e 7 i sintomi dell'influenza in input",
+         'ICS(influenza) = 100%'],
+        ['2', 'Corrispondenza parziale',
+         '3 sintomi su 7 dell\'influenza',
+         'ICS(influenza) = round(3/7·100) = 43%'],
+        ['3', 'Diagnosi multiple',
+         'Sintomi condivisi: febbre_alta, mal_di_testa, stanchezza',
+         '≥ 2 diagnosi restituite'],
+        ['4', 'Nessuna corrispondenza',
+         'Sintomi inventati / non presenti nella KB',
+         '0 diagnosi'],
+        ['5', 'Gestione duplicati',
+         'Stesso sintomo ripetuto nell\'input',
+         'Stessa ICS della versione senza duplicati'],
+        ['6', 'Spiegazione diagnosi',
+         'spiega_diagnosi/4 con 2 sintomi dell\'influenza',
+         '2 trovati, 5 mancanti'],
+        ['7', 'Ordinamento risultati',
+         'diagnosi_ordinate/2 con 4 sintomi misti',
+         'Lista ordinata per ICS decrescente'],
     ]
     story.append(make_table(test_headers, test_rows,
-                            [0.8*cm, 4.2*cm, 2.8*cm, 2*cm, 3.2*cm, 2*cm]))
-    story.append(Paragraph("Tabella 8 — Risultati della suite di test.", s['Caption']))
+                            [0.8*cm, 3.2*cm, 6.5*cm, 5.5*cm]))
+    story.append(Paragraph("Tabella 8 — Suite di test (test_1 … test_7).", s['Caption']))
 
     story.append(Spacer(1, 0.3 * cm))
     story.append(Paragraph("7.3 Codice di Test in Prolog", s['SectionH2']))
     story.append(Spacer(1, 0.15 * cm))
 
     test_code = (
-        "%% Predicato principale per i test\n"
+        "%% Test runner principale.\n"
         "test_diagnosi :-\n"
-        "    write('=== Test Suite MedExpert AI ==='), nl,\n"
-        "    test_influenza,\n"
-        "    test_covid,\n"
-        "    test_polmonite,\n"
-        "    test_gastrite,\n"
-        "    test_diabete,\n"
-        "    write('=== Tutti i test superati! ==='), nl.\n"
+        "    format('  SUITE DI TEST - SISTEMA DIAGNOSTICO~n'),\n"
+        "    test_1(R1), test_2(R2), test_3(R3),\n"
+        "    test_4(R4), test_5(R5), test_6(R6), test_7(R7),\n"
+        "    somma_risultati([R1,R2,R3,R4,R5,R6,R7], Sup, Tot),\n"
+        "    Fail is Tot - Sup,\n"
+        "    format('  RIEPILOGO: ~w/~w superati, ~w falliti~n',\n"
+        "           [Sup, Tot, Fail]).\n"
         "\n"
-        "%% Test: Influenza\n"
-        "test_influenza :-\n"
-        "    Sintomi = [febbre, tosse, mal_di_gola,\n"
-        "               dolori_muscolari, mal_di_testa],\n"
-        "    diagnosi(Sintomi, influenza, CF),\n"
-        "    CF > 80,\n"
-        "    write('  ✓ Test Influenza superato'), nl.\n"
-        "\n"
-        "%% Test: COVID-19\n"
-        "test_covid :-\n"
-        "    Sintomi = [febbre, tosse_secca, perdita_gusto,\n"
-        "               perdita_olfatto, affaticamento],\n"
-        "    diagnosi(Sintomi, covid19, CF),\n"
-        "    CF > 60,\n"
-        "    write('  ✓ Test COVID-19 superato'), nl."
+        "%% Esempio: test_2 verifica la corrispondenza parziale.\n"
+        "%% Influenza ha 7 sintomi, ne passiamo 3 -> ICS attesa = 43%.\n"
+        "test_2(Risultato) :-\n"
+        "    SintomiPaziente = [febbre_alta, tosse_secca, stanchezza],\n"
+        "    diagnosi(SintomiPaziente, influenza, Certezza),\n"
+        "    CertezzaAttesa is round((3 / 7) * 100),\n"
+        "    (   Certezza =:= CertezzaAttesa\n"
+        "    ->  Risultato = 1\n"
+        "    ;   Risultato = 0\n"
+        "    )."
     )
     story.append(code_block(test_code, s))
     story.append(Paragraph("Listato 5 — Estratto della suite di test in Prolog.", s['Caption']))
 
     story.append(Paragraph("7.4 Risultati della Validazione", s['SectionH2']))
     story.append(Paragraph(
-        "Tutti i 7 test case sono stati eseguiti con successo, confermando la correttezza del "
-        "motore inferenziale e della Knowledge Base. Il sistema produce diagnosi accurate con "
-        "fattori di certezza coerenti con la sovrapposizione tra sintomi del paziente e sintomi "
-        "delle malattie. La suite di test serve anche come <b>regression testing</b>: ogni volta "
-        "che la KB viene modificata o estesa, i test esistenti verificano che le diagnosi "
-        "precedentemente corrette non siano state compromesse.", s['BodyJ']))
+        "Tutti i 7 test case sono stati eseguiti con successo (output reale: "
+        "<font face='Courier'>RIEPILOGO: 7/7 superati, 0 falliti</font>). Il sistema produce "
+        "diagnosi con valori di ICS coerenti con la sovrapposizione tra sintomi del paziente e "
+        "sintomi delle malattie. La suite serve anche come <b>regression testing</b>: a ogni "
+        "modifica della KB i test verificano che le diagnosi precedentemente corrette non siano "
+        "state compromesse. Il predicato <i>somma_risultati/3</i> produce un riepilogo finale "
+        "<i>superati / totale</i>.", s['BodyJ']))
 
     story.append(hr())
 
@@ -1080,17 +1159,18 @@ def build_section_8(story, s):
         "I principali risultati ottenuti sono:", s['BodyJ']))
 
     story.append(Paragraph(
-        "• <b>Knowledge Base completa</b> — È stata sviluppata una KB contenente 16 patologie "
-        "distribuite su 8 categorie mediche, con oltre 70 sintomi distinti, descrizioni dettagliate "
+        "• <b>Knowledge Base completa</b> — È stata sviluppata una KB contenente 17 patologie "
+        "distribuite su 10 categorie mediche, con 44 sintomi distinti, descrizioni dettagliate "
         "e trattamenti raccomandati.", s['BodyBullet']))
     story.append(Paragraph(
-        "• <b>Motore inferenziale funzionale</b> — Il backward chaining di Prolog, combinato con "
-        "il calcolo dei fattori di certezza, produce diagnosi accurate e ordinate per probabilità, "
-        "come confermato dalla suite di test.", s['BodyBullet']))
+        "• <b>Motore inferenziale funzionale</b> — Lo schema goal-driven di Prolog (backward "
+        "chaining), combinato con il calcolo dell'<b>Indice di Copertura Sintomatica</b>, produce "
+        "una lista di diagnosi candidate ordinate, come confermato dalla suite di test.",
+        s['BodyBullet']))
     story.append(Paragraph(
         "• <b>Explanation Facility</b> — Il sistema è in grado di spiegare ogni diagnosi, mostrando "
-        "i sintomi corrispondenti e il calcolo del fattore di certezza, soddisfacendo un requisito "
-        "fondamentale dei sistemi esperti.", s['BodyBullet']))
+        "esplicitamente i sintomi <i>trovati</i> e i sintomi <i>mancanti</i> della malattia, "
+        "soddisfacendo un requisito fondamentale dei sistemi esperti.", s['BodyBullet']))
     story.append(Paragraph(
         "• <b>Interfaccia utente professionale</b> — La GUI con tema medicale scuro offre "
         "un'esperienza utente intuitiva e visivamente accattivante, rendendo il sistema accessibile "
@@ -1128,12 +1208,14 @@ def build_section_8(story, s):
 
     story.append(Paragraph("8.3 Connessione ai Temi del Corso", s['SectionH2']))
     story.append(Paragraph(
-        "In conclusione, MedExpert AI rappresenta un'applicazione concreta dei concetti fondamentali "
-        "trattati nel corso di <i>Elementi di Intelligenza Artificiale</i>. Il progetto tocca i temi "
-        "della <b>rappresentazione della conoscenza</b> (fatti e regole Prolog), del <b>ragionamento "
-        "automatico</b> (backward chaining), della <b>gestione dell'incertezza</b> (fattori di certezza), "
-        "e della <b>progettazione di agenti intelligenti</b> (il sistema esperto come agente "
-        "knowledge-based).", s['BodyJ']))
+        "In conclusione, MedExpert AI rappresenta un'applicazione concreta dei concetti dei "
+        "<b>capitoli 7-10 del libro Gallucci</b>: rappresentazione della conoscenza in una KB "
+        "come insieme di sentence (cap. 7), inferenza nella logica del primo ordine con "
+        "<i>forward</i> e <i>backward chaining</i> (cap. 9.4), e Prolog come linguaggio basato su "
+        "clausole di Horn con motore inferenziale goal-driven (cap. 10). Il progetto realizza "
+        "esattamente l'architettura del sistema formale descritta nel libro: KB + esperto di "
+        "dominio (l'autore in veste di knowledge engineer medico) + motore inferenziale "
+        "(SWI-Prolog).", s['BodyJ']))
 
     story.append(Paragraph(
         "Il sistema dimostra che l'AI simbolica, nonostante l'attuale predominanza degli approcci "
