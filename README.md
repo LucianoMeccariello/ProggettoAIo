@@ -57,10 +57,25 @@ pip3 install reportlab
 python3 interfaccia.py
 ```
 
-### Testare solo il Prolog da terminale:
+### Eseguire la suite di test automatizzata:
 ```bash
 swipl -g "test_diagnosi, halt" diagnosi_medica.pl
 ```
+
+### Uso Interattivo (Prolog puro da terminale):
+Per interrogare direttamente il motore senza interfaccia grafica, avvia l'ambiente Prolog caricando il file:
+```bash
+swipl -s diagnosi_medica.pl
+```
+Una volta dentro la console (vedrai il prompt `?-`), puoi lanciare i seguenti comandi (ricorda sempre il punto finale `.`):
+
+- **Vedere tutte le malattie:** `mostra_malattie.`
+- **Dettagli su una malattia:** `mostra_info(influenza).`
+- **Eseguire una diagnosi partendo dai sintomi:** `query_diagnosi('febbre_alta,tosse_secca,mal_di_testa').`
+- **Spiegare una diagnosi:** `query_spiega(influenza, 'febbre_alta,tosse_secca').`
+- **Diagnosi differenziale (confronto):** `diagnosi_differenziale(influenza, covid19).`
+- **Uscire dall'ambiente:** `halt.`
+
 
 ### Generare il PDF di documentazione:
 ```bash
