@@ -77,10 +77,7 @@ Una volta dentro la console (vedrai il prompt `?-`), puoi lanciare i seguenti co
 - **Uscire dall'ambiente:** `halt.`
 
 
-### Generare il PDF di documentazione:
-```bash
-python3 genera_pdf.py
-```
+
 
 ---
 
@@ -103,7 +100,6 @@ python3 genera_pdf.py
 PROGETTO AI FINALE/
 ├── diagnosi_medica.pl       # Knowledge Base + Regole di Inferenza (Prolog)
 ├── interfaccia.py           # Interfaccia Grafica (Python/Tkinter)
-├── genera_pdf.py            # Generatore documentazione PDF
 ├── Documentazione_MedExpert.pdf  # PDF generato
 └── README.md                # Questo file
 ```
